@@ -1,4 +1,4 @@
-source 'https://rubygems.org'
+source 'http://rubygems.org'
 gem 'thor'
 gem 'aws-sdk'
 gem 'drink-socially'

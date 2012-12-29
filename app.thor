@@ -41,9 +41,6 @@ module Leaderbeerd
       process_options(options)
       processor = ::Leaderbeerd::Processor.new
       while true
-        # puts "Processing..."
-        # processor.process
-        # puts "Processing completed.  Sleeping for #{options[:frequency]} minutes."
         process_once
         ::Leaderbeerd::Config.logger.info "Sleeping for #{options[:frequency]} minutes."
         sleep(options[:frequency] * 60)
@@ -55,6 +52,8 @@ module Leaderbeerd
     standard_options
     def server
       process_options(options)
+      
+      ::Leaderbeerd::Config.logger.info "Starting Sinatra server"
       ::Leaderbeerd::Server.run!
     end
     
@@ -66,6 +65,13 @@ module Leaderbeerd
       ::Leaderbeerd::Config.untappd_usernames = options[:untappd_usernames]
       ::Leaderbeerd::Config.aws_key = options[:aws_key]
       ::Leaderbeerd::Config.aws_secret = options[:aws_secret]
+
+      begin
+        Dir.mkdir(File.dirname(options[:log_file]))
+      rescue SystemCallError
+        #suppress mkdir error
+      end
+      
       ::Leaderbeerd::Config.logger = Logger.new(options[:log_file])
       ::Leaderbeerd::Config.logger.level = Logger.const_get(options[:log_level])
     end

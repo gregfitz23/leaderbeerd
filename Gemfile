@@ -1,0 +1,5 @@
+source 'https://rubygems.org'
+gem 'thor'
+gem 'aws-sdk'
+gem 'drink-socially'
+gem 'sinatra'

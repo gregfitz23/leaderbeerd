@@ -1,13 +1,12 @@
 require "rubygems"
 require "bundler/setup"
 require 'benchmark'
+require 'logger'
 require "./server/lib/config"
 require "./server/lib/server"
 require "./server/lib/processor"
 
 module Leaderbeerd
-  
-
   class App < Thor
     def self.standard_options
       method_option :untappd_client_id, :type => :string, :required => true
@@ -16,19 +15,23 @@ module Leaderbeerd
       method_option :untappd_usernames, :type => :array, :required => true 
       method_option :aws_key, :type => :string, :required => true 
       method_option :aws_secret, :type => :string, :required => true
+      method_option :log_file, :type => :string, :default => "log/leaderbeerd.log"
+      method_option :log_level, :type => :string, :default => "INFO"
     end
     
     desc "process_once", "run the leaderbeerd processor once"
     standard_options
     def process_once
-      puts "Processing..."
-
       process_options(options)
+      
+      ::Leaderbeerd::Config.logger.info "Processing..."
+
       processor = ::Leaderbeerd::Processor.new
       time = Benchmark.realtime do
         processor.process
       end
-      puts "Processing completed in #{time}s"
+      
+      ::Leaderbeerd::Config.logger.info "Processing completed in #{time}s"
     end
 
     desc "process", "run the leaderbeerd processor continuously"
@@ -42,7 +45,7 @@ module Leaderbeerd
         # processor.process
         # puts "Processing completed.  Sleeping for #{options[:frequency]} minutes."
         process_once
-        puts "Sleeping for #{options[:frequency]} minutes."
+        ::Leaderbeerd::Config.logger.info "Sleeping for #{options[:frequency]} minutes."
         sleep(options[:frequency] * 60)
       end
     end
@@ -62,7 +65,9 @@ module Leaderbeerd
       ::Leaderbeerd::Config.untappd_access_token = options[:untappd_access_token]
       ::Leaderbeerd::Config.untappd_usernames = options[:untappd_usernames]
       ::Leaderbeerd::Config.aws_key = options[:aws_key]
-      ::Leaderbeerd::Config.aws_secret = options[:aws_secret]      
+      ::Leaderbeerd::Config.aws_secret = options[:aws_secret]
+      ::Leaderbeerd::Config.logger = Logger.new(options[:log_file])
+      ::Leaderbeerd::Config.logger.level = Logger.const_get(options[:log_level])
     end
   end
 end

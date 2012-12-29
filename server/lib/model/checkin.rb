@@ -10,22 +10,20 @@ module Leaderbeerd
       def table
         return @table if @table
         
-        @dynamo_db ||= AWS::DynamoDB.new(
+        @db ||= AWS::SimpleDB.new(
           :access_key_id => Config.aws_key,
           :secret_access_key => Config.aws_secret
         )
 
-        @table = @dynamo_db.tables["leaderbeerd_checkins"]          
-        @table.hash_key = [:username, :string]
-        @table.range_key = [:timestamp, :number]
+        @table = @db.domains["leaderbeerd_checkins"]          
         @table
       end
 
       def create(username, timestamp, checkin_id)
-        item = self.table.items.put(
+        item = self.table.items[checkin_id]
+        item.attributes.add(
           username: username,
-          timestamp: timestamp,
-          checkin_id: checkin_id
+          timestamp: timestamp
         )
         
         item_to_model(item)
@@ -34,14 +32,24 @@ module Leaderbeerd
       ##
       # Find all checkins by a user after the given timestamp.
       #
-      def find_all_by_username_after_timestamp(username, since)       
-        self.table.items.query(:hash_value => username, :range_greater_than => since).map {|item| item_to_model(item) }
+      def count_by_username_after_timestamp(username, since)       
+        self.table
+          .items
+          .where(
+            username: username, 
+            timestamp: since..Time.now.to_i
+          )
+          .order(:timestamp, :desc)
+          .size
       end
       
       private      
-      def item_to_model(item)
-        attrs = item.attributes
-        self.new(username: attrs["username"], timestamp: attrs["timestamp"], checkin_id: attrs["checkin_id"])
+      def item_to_model(item)        
+        self.new(
+          username: item.attributes["username"].values.first, 
+          timestamp: item.attributes["timestamp"].values.first.to_i, 
+          checkin_id: item.name.to_i
+        )
       end
     end
     

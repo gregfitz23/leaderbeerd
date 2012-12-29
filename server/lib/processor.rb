@@ -9,7 +9,7 @@ module Leaderbeerd
   
     def process
       Config.untappd_usernames.each do |username|
-        resp = @untappd.user_feed(username: username)
+        resp = @untappd.user_feed(username: username, limit: 5)
         items = resp.body.response.checkins.items
         items.each do |item| 
           checkin_id = item.checkin_id

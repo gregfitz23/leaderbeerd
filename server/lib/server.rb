@@ -19,7 +19,7 @@ module Leaderbeerd
     get '/stats' do      
       data = {}
       Leaderbeerd::Config.untappd_usernames.each do |username|
-        data[username] = Checkin.find_all_by_username_after_timestamp(username, Time.now.to_i - (7*24*60*60)).size
+        data[username] = Checkin.count_by_username_after_timestamp(username, Time.now.to_i - (7*24*60*60))
       end
       
       data.inspect

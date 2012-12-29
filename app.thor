@@ -1,5 +1,6 @@
 require "rubygems"
 require "bundler/setup"
+require 'benchmark'
 require "./server/lib/config"
 require "./server/lib/server"
 require "./server/lib/processor"
@@ -20,11 +21,14 @@ module Leaderbeerd
     desc "process_once", "run the leaderbeerd processor once"
     standard_options
     def process_once
+      puts "Processing..."
+
       process_options(options)
       processor = ::Leaderbeerd::Processor.new
-      puts "Processing..."
-      processor.process
-      puts "Processing completed"
+      time = Benchmark.realtime do
+        processor.process
+      end
+      puts "Processing completed in #{time}s"
     end
 
     desc "process", "run the leaderbeerd processor continuously"
@@ -34,9 +38,11 @@ module Leaderbeerd
       process_options(options)
       processor = ::Leaderbeerd::Processor.new
       while true
-        puts "Processing..."
-        processor.process
-        puts "Processing completed.  Sleeping for #{options[:frequency]} minutes."
+        # puts "Processing..."
+        # processor.process
+        # puts "Processing completed.  Sleeping for #{options[:frequency]} minutes."
+        process_once
+        puts "Sleeping for #{options[:frequency]} minutes."
         sleep(options[:frequency] * 60)
       end
     end

@@ -26,16 +26,19 @@ module Leaderbeerd
     get '/stats' do      
       
       @data = Leaderbeerd::Config.untappd_usernames.inject({}) do |data, username|
-        data[username] = Checkin.count_by_username_after_timestamp(username, Time.now.to_i - (7*24*60*60))
+        data[username] = {}
+        data[username][:count] = Checkin.count_by_username_after_timestamp(username, Time.now.to_i - (7*24*60*60))
+        data[username][:recent_checkin] = Checkin.find_most_recent_by_username(username)
         data
       end
+      
+      puts @data
 
       # untappd = NRB::Untappd::API.new(access_token: Config.untappd_access_token)
       untappd = NRB::Untappd::API.new(access_token: Config.untappd_access_token)
       untappd.user_feed(username: "gregfitz23")
 
       @rate_limit = untappd.rate_limit      
-      puts "rate_limit: #{@rate_limit.inspect}"
       
       haml :stats
     end

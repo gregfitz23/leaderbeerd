@@ -3,7 +3,24 @@ require 'benchmark'
 
 module Leaderbeerd
   class Checkin
-    attr_accessor :username, :timestamp, :checkin_id
+    
+    ATTRIBUTES = [
+      :username, 
+      :timestamp, 
+      :checkin_id,
+      :beer_id,
+      :beer_name,
+      :beer_label_url,
+      :beer_abv,
+      :brewery_id,
+      :brewery_name,
+      :venue_id,
+      :venue_name,
+      :comment_count,
+      :toast_count
+    ]
+    
+    ATTRIBUTES.each {|a| attr_accessor a }
     
     class << self
       
@@ -19,14 +36,32 @@ module Leaderbeerd
         @table
       end
 
-      def create(username, timestamp, checkin_id)
-        item = self.table.items[checkin_id]
-        item.attributes.add(
-          username: username,
-          timestamp: timestamp
-        )
+      def create(attributes)
+        [:checkin_id, :username, :timestamp].each {|a| raise "#{a} is required" if attributes[a].to_s.empty? }
+        
+        Config.logger.debug "Creating leaderbeerd_checkin with #{attributes.inspect}"
+        
+        item = self.table.items[attributes[:checkin_id]]
+        item.attributes.add(attributes)
         
         item_to_model(item)
+      end
+      
+      def find(id)
+        item_to_model(table.items[id])
+      end
+      
+      def find_most_recent_by_username(username)
+        item = self.table
+          .items
+          .where(
+            username: username, 
+          )
+          .order(:timestamp, :desc)
+          .limit(1)
+          .first
+          
+          item_to_model(item)
       end
       
       ##
@@ -44,19 +79,21 @@ module Leaderbeerd
       end
       
       private      
-      def item_to_model(item)        
-        self.new(
-          username: item.attributes["username"].values.first, 
-          timestamp: item.attributes["timestamp"].values.first.to_i, 
-          checkin_id: item.name.to_i
-        )
+      def item_to_model(item)
+        attributes = {
+          checkin_id: item.name.to_i          
+        }
+        
+        (ATTRIBUTES - [:checkin_id]).each { |a| attributes.merge!({a =>item.attributes[a.to_s].values.first }) }
+        
+        self.new(attributes)
       end
     end
     
     def initialize(attributes = {})
-      self.username = attributes[:username]
-      self.timestamp = attributes[:timestamp]
-      self.checkin_id = attributes[:checkin_id]
+      attributes.each_pair do |name, value|
+        self.__send__("#{name}=", value) if ATTRIBUTES.include?(name)
+      end
     end
     
   

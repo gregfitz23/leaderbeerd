@@ -18,7 +18,15 @@
       %h3 Beers over last week
       
       %ul
-      - @data.each_pair do |username, count|
-        %li #{username} - #{count}
+      - @data.each_pair do |username, stats|
+        %li 
+          #{username} 
+          %ul
+            %li Count - #{stats[:count]}
+            - recent_checkin = stats[:recent_checkin]
+            %li 
+              Last beer - 
+              #{recent_checkin.beer_name} -
+              %img{:src=> recent_checkin.beer_label_url } 
         
         

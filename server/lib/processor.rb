@@ -17,20 +17,49 @@ module Leaderbeerd
             limit: 5
           )
 
-          items = resp.body.response.checkins.items
-          items.each do |item| 
-            checkin_id = item.checkin_id
-            username = item.user.user_name
-            created_at = DateTime.parse(item.created_at).to_time.to_i
+          Config.logger.debug resp.body.inspect
           
-            Checkin.create(username, created_at, checkin_id)
+          resp_meta = resp.body.meta
+          if resp_meta.code == 200
+            checkins = resp.body.response.checkins.items
+            checkins.each do |checkin| 
+              checkin_id = checkin.checkin_id
+              user = checkin.user
+              beer = checkin.beer
+              brewery = checkin.brewery
+              venue = checkin.venue
+              comments = checkin.comments
+              toasts = checkin.toasts
+            
+              username = user.user_name
+
+              created_at = DateTime.parse(checkin.created_at).to_time.to_i
+
+              Checkin.create(
+                checkin_id: checkin_id,
+                username: user.user_name,
+                beer_id: beer.bid,
+                beer_name: beer.beer_name,
+                beer_label_url: beer.beer_label,
+                beer_abv: beer.beer_abv,
+                brewery_id: !brewery.empty? ? brewery.brewery_id : nil,
+                brewery_name: !brewery.empty? ? brewery.brewery_name : nil,
+                venue_id: !venue.empty? ? venue.venue_id : nil,
+                venue_name: !venue.empty? ? venue.venue_name : nil,
+                comment_count: comments.count,
+                toast_count: toasts.count,
+                timestamp: created_at,
+              )
+            end
+          else #untappd api error
+            Config.logger.error "Untappd API error: #{resp_meta.error_detail}"
           end
-        rescue
-          Config.logger.error "Caught error processing #{username}: #{$!.message}"
+        rescue #general processing error
+          Config.logger.error "Caught error processing #{username}: #{$!.message}\n#{$!.backtrace}" 
         end
         
       end
     end
-
+    
   end
 end

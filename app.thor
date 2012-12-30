@@ -2,6 +2,7 @@ require "rubygems"
 require "bundler/setup"
 require 'benchmark'
 require 'logger'
+require 'irb'
 require "./server/lib/config"
 require "./server/lib/server"
 require "./server/lib/processor"
@@ -17,6 +18,9 @@ module Leaderbeerd
       method_option :aws_secret, :type => :string, :required => true
       method_option :log_file, :type => :string, :default => "log/leaderbeerd.log"
       method_option :log_level, :type => :string, :default => "INFO"
+    end
+    
+    def self.processor_options
       method_option :pid_file, :type => :string, :default => "tmp/leaderbeerd.pid"
       method_option :force, :type => :boolean, :default => false, :desc => "Force the process to restart", :aliases => "-f"
       method_option :daemonize, :type => :boolean, :default => false, :desc => "Run as daemon", :aliases=>"-d"
@@ -24,6 +28,7 @@ module Leaderbeerd
     
     desc "process_once", "run the leaderbeerd processor once"
     standard_options
+    processor_options
     def process_once
       process_options
       
@@ -34,6 +39,7 @@ module Leaderbeerd
 
     desc "process", "run the leaderbeerd processor continuously"
     standard_options
+    processor_options
     method_option :frequency, :type => :numeric, :default => 15, :desc => "Delay between runs, in minutes"
     def process
       process_options
@@ -53,10 +59,16 @@ module Leaderbeerd
     def server
       process_options
 
-      check_pid_and_fork do
-        ::Leaderbeerd::Config.logger.info "Starting Sinatra server"
-        ::Leaderbeerd::Server.run!
-      end
+      ::Leaderbeerd::Config.logger.info "Starting Sinatra server"
+      ::Leaderbeerd::Server.run!
+    end
+    
+    desc "console", "Run a console in the given context"
+    standard_options
+    def console
+      process_options
+      ARGV.clear
+      IRB.start
     end
     
     private

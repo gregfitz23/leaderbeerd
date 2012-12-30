@@ -1,3 +1,2 @@
-process_once
-start_server
+bin/*
 log/*

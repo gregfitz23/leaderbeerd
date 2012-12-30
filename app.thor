@@ -28,14 +28,7 @@ module Leaderbeerd
       process_options
       
       check_pid_and_fork do      
-        ::Leaderbeerd::Config.logger.info "Processing..."
-
-        processor = ::Leaderbeerd::Processor.new
-        time = Benchmark.realtime do
-          processor.process
-        end
-      
-        ::Leaderbeerd::Config.logger.info "Processing completed in #{time}s"
+        _process
       end
     end
 
@@ -46,9 +39,8 @@ module Leaderbeerd
       process_options
 
       check_pid_and_fork do
-        processor = ::Leaderbeerd::Processor.new
         while true
-          process_once
+          _process
           ::Leaderbeerd::Config.logger.info "Sleeping for #{options[:frequency]} minutes."
           sleep(options[:frequency] * 60)
         end
@@ -68,6 +60,17 @@ module Leaderbeerd
     end
     
     private
+    def _process
+      ::Leaderbeerd::Config.logger.info "Processing..."
+
+      processor = ::Leaderbeerd::Processor.new
+      time = Benchmark.realtime do
+        processor.process
+      end
+    
+      ::Leaderbeerd::Config.logger.info "Processing completed in #{time}s"      
+    end
+    
     def process_options
       ::Leaderbeerd::Config.untappd_client_id = options[:untappd_client_id]
       ::Leaderbeerd::Config.untappd_secret = options[:untappd_secret]

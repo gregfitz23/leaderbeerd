@@ -84,7 +84,8 @@ module Leaderbeerd
           checkin_id: item.name.to_i          
         }
         
-        (ATTRIBUTES - [:checkin_id]).each { |a| attributes.merge!({a =>item.attributes[a.to_s].values.first }) }
+        data_attributes = item.data.attributes
+        (ATTRIBUTES - [:checkin_id]).each { |a| attributes.merge!({a =>data_attributes[a.to_s].first }) }
         
         self.new(attributes)
       end

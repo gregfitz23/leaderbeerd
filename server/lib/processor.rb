@@ -9,19 +9,26 @@ module Leaderbeerd
   
     def process
       Config.untappd_usernames.each do |username|
-        resp = @untappd.user_feed(
-          username: username, 
-          limit: 5
-        )
+        Config.logger.debug "Fetching checkins for #{username}"
+        
+        begin
+          resp = @untappd.user_feed(
+            username: username, 
+            limit: 5
+          )
 
-        items = resp.body.response.checkins.items
-        items.each do |item| 
-          checkin_id = item.checkin_id
-          username = item.user.user_name
-          created_at = DateTime.parse(item.created_at).to_time.to_i
+          items = resp.body.response.checkins.items
+          items.each do |item| 
+            checkin_id = item.checkin_id
+            username = item.user.user_name
+            created_at = DateTime.parse(item.created_at).to_time.to_i
           
-          Checkin.create(username, created_at, checkin_id)
+            Checkin.create(username, created_at, checkin_id)
+          end
+        rescue
+          Config.logger.error "Caught error processing #{username}: #{$!.message}"
         end
+        
       end
     end
 

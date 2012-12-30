@@ -65,7 +65,7 @@ module Leaderbeerd
       ::Leaderbeerd::Config.untappd_usernames = options[:untappd_usernames]
       ::Leaderbeerd::Config.aws_key = options[:aws_key]
       ::Leaderbeerd::Config.aws_secret = options[:aws_secret]
-
+      
       begin
         Dir.mkdir(File.dirname(options[:log_file]))
       rescue SystemCallError
@@ -73,7 +73,7 @@ module Leaderbeerd
       end
       
       ::Leaderbeerd::Config.logger = Logger.new(options[:log_file])
-      ::Leaderbeerd::Config.logger.level = Logger.const_get(options[:log_level])
+      ::Leaderbeerd::Config.logger.level = Logger.const_get(options[:log_level].upcase)
     end
   end
 end

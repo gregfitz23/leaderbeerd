@@ -15,11 +15,11 @@ module Leaderbeerd
       method_option :untappd_usernames, :type => :array, :required => true 
       method_option :aws_key, :type => :string, :required => true 
       method_option :aws_secret, :type => :string, :required => true
-      method_option :log_file, :type => :string, :default => "log/leaderbeerd.log", :aliases => "-l"
+      method_option :log_file, :type => :string, :default => "log/leaderbeerd.log"
       method_option :log_level, :type => :string, :default => "INFO"
-      method_option :pid_file, :type => :string, :default => "tmp/leaderbeerd.pid", :aliases => "-p"
+      method_option :pid_file, :type => :string, :default => "tmp/leaderbeerd.pid"
       method_option :force, :type => :boolean, :default => false, :desc => "Force the process to restart", :aliases => "-f"
-      method_option :daemonize, :type => :boolean, :default => false, :desc => "Run as daemon", :aliases => "-d"
+      method_option :daemonize, :type => :boolean, :default => false, :desc => "Run as daemon", :aliases=>"-d"
     end
     
     desc "process_once", "run the leaderbeerd processor once"
@@ -87,13 +87,12 @@ module Leaderbeerd
     end
     
     def check_pid_and_fork
+      kill = options.force?
+      daemonize = options.daemonize?
+      pid_file = options[:pid_file]
+
       begin
-        pid_file = options[:pid_file]
         pid = File.read(pid_file).strip.to_i        
-
-        kill = options[:force]
-        daemonize = options[:daemonize]
-
         Process.kill 0, pid
         
         #process exists
@@ -102,14 +101,13 @@ module Leaderbeerd
           Process.kill "KILL", pid
           sleep(5)
         else
-          raise "A Leaderbeerd process is already running with pid of #{pid}."
+          raise "A Leaderbeerd process is already running with pid of #{pid}.  Run with -f to force a restart."
         end
       rescue Errno::ESRCH, Errno::ENOENT
         ::Leaderbeerd::Config.logger.debug "No pid file found: #{$!}"
         #if the process doesn't exist, keep on trucking
       end
 
-puts "d: #{daemonize} | k: #{kill} | p: #{pid_file}"      
       if daemonize
         Process.fork {
           File.open(pid_file, 'w') {|f| f << Process.pid }

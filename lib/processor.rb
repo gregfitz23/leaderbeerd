@@ -44,11 +44,16 @@ module Leaderbeerd
                 beer_abv: beer.beer_abv,
                 brewery_id: !brewery.empty? ? brewery.brewery_id : nil,
                 brewery_name: !brewery.empty? ? brewery.brewery_name : nil,
+                brewery_country: !brewery.empty? ? brewery.country_name : nil,
+                brewery_state: !brewery.empty? && !brewery.location.empty? ? brewery.location.brewery_state : nil,
                 venue_id: !venue.empty? ? venue.venue_id : nil,
                 venue_name: !venue.empty? ? venue.venue_name : nil,
+                venue_lat: !venue.empty? && !venue.location.empty? ? venue.location.lat : nil,
+                venue_lng: !venue.empty? && !venue.location.empty? ? venue.location.lng : nil,
                 comment_count: comments.count,
                 toast_count: toasts.count,
                 timestamp: created_at,
+                rating: checkin.rating_score
               )
             end
           else #untappd api error

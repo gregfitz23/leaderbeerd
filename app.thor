@@ -3,9 +3,10 @@ require "bundler/setup"
 require 'benchmark'
 require 'logger'
 require 'irb'
-require "./server/lib/config"
-require "./server/lib/server"
-require "./server/lib/processor"
+
+require "./lib/config"
+require File.join(Leaderbeerd::Config.root_dir, "app/controllers/admin_controller")
+require File.join(Leaderbeerd::Config.root_dir, "lib/processor")
 
 module Leaderbeerd
   class App < Thor

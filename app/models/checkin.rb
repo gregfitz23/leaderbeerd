@@ -17,7 +17,9 @@ module Leaderbeerd
       :venue_id,
       :venue_name,
       :comment_count,
-      :toast_count
+      :toast_count,
+      :checkin_comment,
+      :rating
     ]
     
     ATTRIBUTES.each {|a| attr_accessor a }
@@ -97,6 +99,22 @@ module Leaderbeerd
       end
     end
     
+    # Attributes
+    def rating
+      @rating.to_i
+    end
+    
+    def toast_count
+      @toast_count.to_i
+    end
+    
+    def comment_count
+      @comment_count.to_i
+    end
+   
+   def beer_abv 
+     @beer_abv.to_f
+   end
   
   end
 end

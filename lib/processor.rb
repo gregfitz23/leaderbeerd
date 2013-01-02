@@ -53,7 +53,8 @@ module Leaderbeerd
                 comment_count: comments.count,
                 toast_count: toasts.count,
                 timestamp: created_at,
-                rating: checkin.rating_score
+                rating: checkin.rating_score,
+                checkin_comment: checkin.checkin_comment
               )
             end
           else #untappd api error

@@ -61,7 +61,7 @@ module Leaderbeerd
       process_options
 
       ::Leaderbeerd::Config.logger.info "Starting Sinatra server"
-      ::Leaderbeerd::Server.run!
+      ::Leaderbeerd::AdminController.run!
     end
     
     desc "console", "Run a console in the given context"

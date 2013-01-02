@@ -5,7 +5,8 @@ require File.join(Leaderbeerd::Config.root_dir, 'app/models/checkin')
 
 module Leaderbeerd
   class AdminController < Sinatra::Base
-    set :root, File.join(File.dirname(__FILE__), "..")
+    set :root, File.join(Leaderbeerd::Config.root_dir, "app/controllers")
+    set :views, File.join(Leaderbeerd::Config.root_dir, "app/views/admin")
     
     get '/auth' do
       # redirect "https://untappd.com/oauth/authenticate/?client_id=#{::Leaderbeerd::Config.untappd_client_id}&client_secret=#{::Leaderbeerd::Config.untappd_secret}&response_type=code&redirect_url=http://localhost:4567/oauth_callback" 
@@ -23,7 +24,7 @@ module Leaderbeerd
       untappd.user_feed(username: "gregfitz23").to_s
     end
     
-    get '/stats' do      
+    get '/admin/stats' do      
       
       @data = Leaderbeerd::Config.untappd_usernames.inject({}) do |data, username|
         data[username] = {}

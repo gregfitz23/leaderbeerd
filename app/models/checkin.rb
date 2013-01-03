@@ -14,6 +14,8 @@ module Leaderbeerd
       :beer_abv,
       :brewery_id,
       :brewery_name,
+      :brewery_state,
+      :brewery_country,
       :venue_id,
       :venue_name,
       :comment_count,
@@ -66,6 +68,30 @@ module Leaderbeerd
           item_to_model(item)
       end
       
+      def find_all_by_username(username)
+        items = []
+        self.table
+          .items
+          .select(:all)
+          .where(:username => username)
+          .order(:timestamp, :asc)
+          .each {|i| items << item_to_model(i)}
+          
+        items        
+      end
+      
+      def all
+        items = []
+        self.table
+          .items
+          .select(:all)
+          .order(:timestamp, :asc)
+          .each {|i| items << item_to_model(i)}
+          
+        items        
+        
+      end
+      
       ##
       # Find all checkins by a user after the given timestamp.
       #
@@ -86,8 +112,13 @@ module Leaderbeerd
           checkin_id: item.name.to_i          
         }
         
-        data_attributes = item.data.attributes
-        (ATTRIBUTES - [:checkin_id]).each { |a| attributes.merge!({a =>data_attributes[a.to_s].first }) }
+        data_attributes = item.respond_to?(:data) ? item.data.attributes : item.attributes
+        (ATTRIBUTES - [:checkin_id]).each do |a| 
+          values = data_attributes[a.to_s]
+          if values
+            attributes.merge!({a => values.select {|v| !v.nil?}.first })
+          end
+        end
         
         self.new(attributes)
       end
@@ -102,6 +133,10 @@ module Leaderbeerd
     # Attributes
     def rating
       @rating.to_i
+    end
+    
+    def timestamp
+      @timestamp.to_i
     end
     
     def toast_count

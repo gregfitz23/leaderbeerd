@@ -1,0 +1,38 @@
+!!!
+%html
+  %head
+    %script{:type => "text/javascript", :src => "https://www.google.com/jsapi" }
+    :javascript
+      // Load the Visualization API and the piechart package.
+      google.load('visualization', '1.0', {'packages':['corechart', 'geochart']});
+
+      // Set a callback to run when the Google Visualization API is loaded.
+      google.setOnLoadCallback(drawChart);
+
+      function drawChart() {
+
+        // Create the data table.
+        
+        var overview_data = google.visualization.arrayToDataTable(
+          #{@overview_data.to_json}        
+        );
+        
+        var options = {
+          title: 'Beers'
+        };
+
+        var overview_chart = new google.visualization.LineChart(document.getElementById('overview_chart'));
+        overview_chart.draw(overview_data, options);
+        
+        var geo_data = google.visualization.arrayToDataTable(#{@geo_data.to_a.to_json});
+
+        var options = {};
+
+        var geo_chart = new google.visualization.GeoChart(document.getElementById('geo_chart'));
+        geo_chart.draw(geo_data, options);
+      }
+
+  %body
+    #overview_chart{:width=>"400px", :height => "300px"}
+    #geo_chart{:width=>"400px", :height => "300px"}
+    

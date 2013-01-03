@@ -8,13 +8,13 @@ module Leaderbeerd
     set :root, File.join(Leaderbeerd::Config.root_dir, "app/controllers")
     set :views, File.join(Leaderbeerd::Config.root_dir, "app/views/admin")
     
-    get '/auth' do
+    get '/admin/auth' do
       # redirect "https://untappd.com/oauth/authenticate/?client_id=#{::Leaderbeerd::Config.untappd_client_id}&client_secret=#{::Leaderbeerd::Config.untappd_secret}&response_type=code&redirect_url=http://localhost:4567/oauth_callback" 
       redirect "http://untappd.com/oauth/authenticate/?client_id=#{::Leaderbeerd::Config.untappd_client_id}&response_type=token&redirect_url=http://localhost:4567/oauth_complete"
     end
 
     #server side oauth has proved fruitless
-    get '/oauth_callback' do
+    get '/admin/oauth_callback' do
       ::Leaderbeerd::Config.logger.debug "Redirecting to https://untappd.com/oauth/authorize/?client_id=#{::Leaderbeerd::Config.untappd_client_id}&client_secret=#{::Leaderbeerd::Config.untappd_secret}&response_type=code&code=#{params[:code]}&redirect_url=http://localhost:4567/oauth_complete"
       redirect "https://untappd.com/oauth/authorize/?client_id=#{::Leaderbeerd::Config.untappd_client_id}&client_secret=#{::Leaderbeerd::Config.untappd_secret}&response_type=code&code=#{params[:code]}&redirect_url=http://localhost:4567/oauth_complete" 
     end

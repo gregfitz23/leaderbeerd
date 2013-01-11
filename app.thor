@@ -61,8 +61,10 @@ module Leaderbeerd
     def server
       process_options
 
-      ::Leaderbeerd::Config.logger.info "Starting Sinatra server"
-      ::Leaderbeerd::CheckinsController.run!
+      check_pid_and_fork do
+        ::Leaderbeerd::Config.logger.info "Starting Sinatra server"
+        ::Leaderbeerd::CheckinsController.run!
+      end
     end
     
     desc "console", "Run a console in the given context"

@@ -4,9 +4,14 @@ require File.join(Leaderbeerd::Config.root_dir, 'app/models/checkin')
 module Leaderbeerd
   class CheckinsController < Sinatra::Base
     
+    set :run, true
     set :port, 80
     set :root, File.join(Leaderbeerd::Config.root_dir, "app/controllers")
     set :views, File.join(Leaderbeerd::Config.root_dir, "app/views")
+    
+    get "/" do
+      "hi"
+    end
     
     get "/checkins/overview" do
       

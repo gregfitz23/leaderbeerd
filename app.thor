@@ -6,7 +6,7 @@ require 'irb'
 
 require "./lib/config"
 require File.join(Leaderbeerd::Config.root_dir, "app/controllers/admin_controller")
-require File.join(Leaderbeerd::Config.root_dir, "app/controllers/main_controller")
+require File.join(Leaderbeerd::Config.root_dir, "app/controllers/checkins_controller")
 require File.join(Leaderbeerd::Config.root_dir, "lib/processor")
 
 module Leaderbeerd
@@ -62,7 +62,7 @@ module Leaderbeerd
       process_options
 
       ::Leaderbeerd::Config.logger.info "Starting Sinatra server"
-      ::Leaderbeerd::MainController.run!
+      ::Leaderbeerd::CheckinsController.run!
     end
     
     desc "console", "Run a console in the given context"

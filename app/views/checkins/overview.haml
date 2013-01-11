@@ -14,25 +14,45 @@
         // Create the data table.
         
         var overview_data = google.visualization.arrayToDataTable(
-          #{@overview_data.to_json}        
+          #{@count_by_day_data.to_json}        
         );
         
-        var options = {
-          title: 'Beers'
+        var count_series = {
+          targetAxisIndex: 0,
+          type: 'bars'
+        };
+        var sum_series = { 
+          targetAxisIndex: 1,
+          type: 'line'
+        };
+        
+        var overview_options = {
+          title: 'Beers',
+          series: {
+            0: count_series,
+            1: count_series,
+            2: count_series,
+            3: count_series,
+            4: sum_series,
+            5: sum_series,
+            6: sum_series,
+            7: sum_series
+          },
+          vAxes: [
+            { title: "Daily Count"},
+            { title: "Running Total"}
+          ]
         };
 
         var overview_chart = new google.visualization.LineChart(document.getElementById('overview_chart'));
-        overview_chart.draw(overview_data, options);
+        overview_chart.draw(overview_data, overview_options);
         
         var geo_data = google.visualization.arrayToDataTable(#{@geo_data.to_a.to_json});
-
-        var options = {};
-
         var geo_chart = new google.visualization.GeoChart(document.getElementById('geo_chart'));
-        geo_chart.draw(geo_data, options);
+        geo_chart.draw(geo_data, {});
       }
 
   %body
-    #overview_chart{:width=>"400px", :height => "300px"}
+    #overview_chart{:style => "width: 100%; height: 600px"}
     #geo_chart{:width=>"400px", :height => "300px"}
     

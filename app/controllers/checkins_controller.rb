@@ -9,11 +9,11 @@ module Leaderbeerd
     set :root, File.join(Leaderbeerd::Config.root_dir, "app/controllers")
     set :views, File.join(Leaderbeerd::Config.root_dir, "app/views")
     
-    get "/" do
+    get "/health_test" do
       "hi"
     end
     
-    get "/checkins/overview" do
+    get "/" do
       
       @usernames = Config.untappd_usernames
       

@@ -43,6 +43,7 @@ module Leaderbeerd
         
         @sums_by_user[username] += 1
         
+        Config.logger.debug("Beer: username=#{username} id=#{checkin.checkin_id} name=#{checkin.beer_name} abv=#{checkin.beer_abv}")
         abv_data[username][:total] += checkin.beer_abv
         abv_data[username][:count] += 1
       end

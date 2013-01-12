@@ -146,7 +146,7 @@ module Leaderbeerd
       attrs = ATTRIBUTES.inject({}) do |hash, attribute|
         hash.merge({attribute => self.send(attribute) })
       end
-      item.attributes.add(attrs)      
+      item.attributes.put(replace: attrs)      
     end
     
     # Attributes

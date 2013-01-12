@@ -15,6 +15,13 @@
         height: 600px;
       }
       
+      #overview_control {
+        height: 75px;
+        width: 75%;
+        margin-left: 150px;
+        top: -50px;
+      }
+      
       #geo_chart, 
       #state_chart {
         width: 1000px;
@@ -26,22 +33,73 @@
         margin-left: 100px;
         margin-right: 100px;
       }
-            
+
+    %script{:src=>"//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"}
     %script{:type => "text/javascript", :src => "https://www.google.com/jsapi" }
     :javascript
       // Load the Visualization API and the piechart package.
-      google.load('visualization', '1.0', {'packages':['corechart', 'geochart', 'gauge']});
+      google.load('visualization', '1.0', {'packages':['corechart', 'geochart', 'gauge', 'controls']});
 
       // Set a callback to run when the Google Visualization API is loaded.
       google.setOnLoadCallback(drawChart);
 
       function drawChart() {
+        var dashboard = new google.visualization.Dashboard(
+             document.getElementById('dashboard'));
+
+        var control = new google.visualization.ControlWrapper({
+          'controlType': 'ChartRangeFilter',
+          'containerId': 'overview_control',
+          'options': {
+            // Filter by the date axis.
+            'filterColumnIndex': 0,
+            'ui': {
+              'chartType': 'LineChart',
+              'chartOptions': {
+                'chartArea': {'width': '90%'},
+                'hAxis': {'baselineColor': 'none'}
+              },
+              // Display a single series that shows the closing value of the stock.
+              // Thus, this view has two columns: the date (axis) and the stock value (line series).
+              'chartView': {
+                'columns': [0, 9]
+              },
+              // 1 day in milliseconds = 24 * 60 * 60 * 1000 = 86,400,000
+              'minRangeSize': 86400000
+            }
+          },
+          // Initial range: 2012-02-09 to 2012-03-20.
+          'state': {'range': {'start': new Date(2012, 11, 8), 'end': new Date()}}
+        });
+
 
         // Create the data table.
         
-        var overview_data = google.visualization.arrayToDataTable(
-          #{@count_by_day_data.to_json}        
-        );
+        var tmp_overview_data = #{@count_by_day_data.to_json};
+        var overview_data = new google.visualization.DataTable();
+
+        var headers = tmp_overview_data.shift();
+        var date_label = headers.shift();
+        overview_data.addColumn('date', date_label);
+        $.each(headers, function(i, header) { overview_data.addColumn('number', header); } );
+        overview_data.addColumn('number', 'Total Beers Consumed');
+        
+        $.each(tmp_overview_data, function(i, row) {
+          var date_str = row.shift();
+          console.log(date_str.split("/"));
+          var date = new Date("20" + date_str.split("/")[2], date_str.split("/")[0] - 1, date_str.split("/")[1]);
+          console.log(date);
+          var total = 0
+          // sum up the total for today (the first half of the array is today's numbers, the second half is running sum)
+          $.each(row.slice(0, row.length/2), function(i, num) { total += num });
+          
+          row.unshift(date);
+          row.push(total);
+          
+          overview_data.addRow(row);
+        });
+        
+        //var overview_data = google.visualization.arrayToDataTable(tmp_overview_data);
         
         var count_series = {
           targetAxisIndex: 0,
@@ -68,16 +126,20 @@
             { title: "Daily Count"},
             { title: "Running Total"}
           ],
-          colors: [
-            'RED',
-            'BLUE',
-            'GREEN',
-            'ORANGE'
-          ]
+          colors: ['#B72E3E', '#BF8C30', '#29497F', '#41A128']
         };
-
-        var overview_chart = new google.visualization.LineChart(document.getElementById('overview_chart'));
-        overview_chart.draw(overview_data, overview_options);
+        
+        var overview_chart = new google.visualization.ChartWrapper({
+          chartType: 'LineChart',
+          containerId: 'overview_chart',
+          options: overview_options,
+          view: {
+            columns: [0,1,2,3,4,5,6,7,8]
+          }
+        });
+        
+        dashboard.bind(control, overview_chart)
+        dashboard.draw(overview_data)
         
         var geo_data = google.visualization.arrayToDataTable(#{@geo_data.to_a.to_json});
         var geo_chart = new google.visualization.GeoChart(document.getElementById('geo_chart'));
@@ -104,18 +166,20 @@
       }
 
   %body
-    .row
-      %h2 Overview
-      #overview_chart.chart
+    #dashboard
+      .row
+        %h2 Overview
+        #overview_chart.chart
+        #overview_control
 
-    #abv_container.row
-      %h2 Average Alcohol By Volume (%)
-      #abv_chart
+      #abv_container.row
+        %h2 Average Alcohol By Volume (%)
+        #abv_chart
       
         
 
-    #geo_container.row
-      %h2 Beers of the World (#)
-      #state_chart.chart
-      #geo_chart.chart
+      #geo_container.row
+        %h2 Beers of the World (#)
+        #state_chart.chart
+        #geo_chart.chart
     

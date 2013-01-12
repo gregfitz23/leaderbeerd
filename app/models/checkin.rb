@@ -1,5 +1,6 @@
 require 'aws-sdk'
 require 'benchmark'
+require File.join(Leaderbeerd::Config.root_dir, "lib/checkin_parser")
 
 module Leaderbeerd
   class Checkin
@@ -106,6 +107,16 @@ module Leaderbeerd
           .size
       end
       
+      ## 
+      # Retrieve checkin info from Untapped and reload the data
+      #
+      def refresh!(checkin)
+        @untappd = NRB::Untappd::API.new(access_token: Config.untappd_access_token)
+        checkin_data = @untappd.checkin_info(checkin_id: checkin.checkin_id)
+        refreshed = CheckinParser::parse_into_checkin(checkin_data)
+        refreshed.save
+      end
+      
       private      
       def item_to_model(item)
         attributes = {
@@ -128,6 +139,14 @@ module Leaderbeerd
       attributes.each_pair do |name, value|
         self.__send__("#{name}=", value) if ATTRIBUTES.include?(name)
       end
+    end
+    
+    def save
+      item = self.class.table.items[self.checkin_id]
+      attrs = ATTRIBUTES.inject({}) do |hash, attribute|
+        hash.merge({attribute => self.send(attribute) })
+      end
+      item.attributes.add(attrs)      
     end
     
     # Attributes

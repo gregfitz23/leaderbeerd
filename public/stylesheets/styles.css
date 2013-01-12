@@ -1,0 +1,121 @@
+body {
+}
+
+.clear {
+  clear: both;
+}
+
+.overview .chart {
+  width: 100%;
+}
+
+.overview .row {
+  text-align: center;
+  margin-bottom: 50px;
+}
+
+.overview #overview_chart {
+  height: 600px;
+}
+
+.overview #overview_control {
+  height: 75px;
+  width: 75%;
+  margin-left: 150px;
+  top: -50px;
+}
+
+.overview #geo_chart, 
+.overview #state_chart {
+  width: 1000px;
+  height: 400px;
+}
+
+.overview #abv_container {
+  text-align: center;
+  margin-left: 100px;
+  margin-right: 100px;
+}
+
+.checkin_list .checkin {
+  width: 200px;
+  margin: 5px;
+  float: left;
+  border: 1px solid #dadada;
+  border-radius: 5px;
+  padding: 15px 5px 10px 5px;
+  text-align: center;
+}
+
+.checkin_list .checkin h3 {
+  float: left;
+  margin-top: 0;
+  width: 80%;
+  text-align: left;
+}
+
+.checkin_list .checkin .label {
+}
+
+.checkin_list .username {
+  float: left;
+  width: 100%;
+  margin-left: -85px;
+  margin-top: -70px;
+  -webkit-transform: rotate(-90deg);
+  -moz-transform: rotate(-90deg);
+  -o-transform: rotate(-90deg);
+  writing-mode: tb-rl;
+}
+
+.checkin_list .checkin .comment {
+  background: url(/images/quote.gif) no-repeat top left;
+  text-align: left;
+  padding: 10px 0 0 25px;
+}
+
+.checkin_list .filters {
+  border-color: #B72E3E;
+  background-color: #B72E3E;
+  color: #fff;
+}
+.checkin_list .filters ul {
+  list-style-type: none;
+  text-align: left;
+}
+
+
+.checkin_list .checkin .date {
+  float: right;
+  width: 100%;
+  margin-right: -85px;
+  margin-top: -70px;
+  -webkit-transform: rotate(-90deg);
+  -moz-transform: rotate(-90deg);
+  -o-transform: rotate(-90deg);
+  writing-mode: tb-rl;
+}
+
+.checkin_list .checkin .capped {
+  background: url(/images/caps.png) no-repeat top left;
+  height: 16px;
+  width: 16px;
+  float: right;
+}
+
+.checkin_list .checkin .toasted {
+  background: url(/images/toast.jpg) no-repeat top left;
+  height: 16px;
+  width: 16px;
+  float: right;
+  border-radius: 5px;
+  margin-right: 2px;
+}
+
+.checkin_list .checkin .capped.ok {
+  background-position: 0 -16px;
+}
+
+.checkin_list .checkin .capped.bad {
+  background-position: 0 -32px;
+}

@@ -1,0 +1,38 @@
+.checkin_list
+  #checkin_list
+    .filters.checkin
+      %h2 Wall o' Beers
+      %ul
+        %li Date
+        %li gregfitz23
+        
+    - @checkins.each do |checkin|
+      .checkin
+        .capped{:class => case checkin.rating when 0..2 then "bad"; when 3 then "ok"; end}
+        - if checkin.toast_count > 0
+          .toasted
+        %h3= checkin.beer_name
+        .clear
+        
+        %img.label{:src => checkin.beer_label_url}
+        .username= checkin.username
+        .date= Time.at(checkin.timestamp).strftime('%D')
+        - unless checkin.checkin_comment.nil?
+          .comment
+            = checkin.checkin_comment
+        
+        
+%script{:type => "text/javascript", :src => "/javascripts/jquery.masonry.min.js"}
+:javascript
+  $(function(){
+    var container = $('#checkin_list');
+    container.imagesLoaded(function() {
+      container.masonry({
+        // options
+        itemSelector : '.checkin',
+        columnWidth : 240,
+        isAnimated: true,
+        cornerStampSelector: '.filters'
+      });
+    });
+  });

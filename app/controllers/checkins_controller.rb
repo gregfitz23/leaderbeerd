@@ -8,7 +8,7 @@ module Leaderbeerd
     set :port, 80
     set :root, File.join(Leaderbeerd::Config.root_dir, "app/controllers")
     set :views, File.join(Leaderbeerd::Config.root_dir, "app/views")
-    
+    set :public_folder, File.join(Leaderbeerd::Config.root_dir, "public")
     get "/health_test" do
       "hi"
     end
@@ -43,10 +43,11 @@ module Leaderbeerd
         
         @sums_by_user[username] += 1
         
-        Config.logger.debug("Beer: username=#{username} id=#{checkin.checkin_id} name=#{checkin.beer_name} abv=#{checkin.beer_abv}")
         abv_data[username][:total] += checkin.beer_abv
         abv_data[username][:count] += 1
       end
+
+      @most_recent_checkin = checkins.last
 
       @sums_by_user.each_pair {|un, sum| @data[prev_key]["#{un}_total"] = sum }
       
@@ -77,7 +78,32 @@ module Leaderbeerd
       
       @geo_data.select! {|key, value| !key.nil?}
     
-      haml :"checkins/overview", :layout => false
+      haml :"checkins/overview"
+    end
+    
+    get "/checkins" do
+      options = {
+        where: {}
+      }
+      
+      @filters = {}
+
+      if (start_date = params[:start_date])
+        end_date = params[:end_date] || start_date
+        options[:where][:timestamp] = Date.parse(start_date).beginning_of_day.to_time.to_i .. Date.parse(end_date).end_of_day.to_time.to_i
+
+        @filters["Start Date"] = start_date
+        @filters["End Date"] = end_date
+      end
+      
+      if (username = params[:username])
+        options[:where][:username] = username
+        
+        @filters["User"] = username 
+      end
+      
+      @checkins = Checkin.all(options)
+      haml :"checkins/list"
     end
     
     get "/checkins/:checkin_id"  do

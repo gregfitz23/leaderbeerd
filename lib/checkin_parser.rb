@@ -30,8 +30,8 @@ module Leaderbeerd
         venue_name: !venue.empty? ? venue.venue_name : nil,
         venue_lat: !venue.empty? && !venue.location.empty? ? venue.location.lat : nil,
         venue_lng: !venue.empty? && !venue.location.empty? ? venue.location.lng : nil,
-        comment_count: comments.count,
-        toast_count: toasts.count,
+        comment_count: comments[:count],
+        toast_count: toasts[:count],
         timestamp: created_at,
         rating: checkin_data.rating_score,
         checkin_comment: checkin_data.checkin_comment

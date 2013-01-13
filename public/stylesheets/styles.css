@@ -1,10 +1,21 @@
 body {
+  padding-top: 71px;
 }
 
 .clear {
   clear: both;
 }
 
+.navbar-fixed-top .nav { 
+  margin-top: 15px;
+}
+
+.logo {
+  width: 50px;
+}
+.overview .alert {
+  text-align: center;
+}
 .overview .chart {
   width: 100%;
 }
@@ -37,6 +48,15 @@ body {
   margin-right: 100px;
 }
 
+.overview h2 {
+  text-align: left;
+  margin-left: 100px;
+}
+
+.overview #abv_container h2 {
+  margin-left: 0px;
+}
+
 .checkin_list .checkin {
   width: 200px;
   margin: 5px;
@@ -47,25 +67,26 @@ body {
   text-align: center;
 }
 
-.checkin_list .checkin h3 {
+.checkin_list .checkin h5 {
   float: left;
   margin-top: 0;
   width: 80%;
   text-align: left;
 }
 
-.checkin_list .checkin .label {
+.checkin_list .checkin .beer_label {
+  margin: auto;
+  display: block;
 }
 
 .checkin_list .username {
-  float: left;
-  width: 100%;
-  margin-left: -85px;
-  margin-top: -70px;
   -webkit-transform: rotate(-90deg);
   -moz-transform: rotate(-90deg);
   -o-transform: rotate(-90deg);
   writing-mode: tb-rl;
+  position: relative;
+  top: -60px;
+  left: -60px;
 }
 
 .checkin_list .checkin .comment {
@@ -74,11 +95,11 @@ body {
   padding: 10px 0 0 25px;
 }
 
-.checkin_list .filters {
+/*.checkin_list .filters {
   border-color: #B72E3E;
   background-color: #B72E3E;
   color: #fff;
-}
+}*/
 .checkin_list .filters ul {
   list-style-type: none;
   text-align: left;
@@ -86,14 +107,13 @@ body {
 
 
 .checkin_list .checkin .date {
-  float: right;
-  width: 100%;
-  margin-right: -85px;
-  margin-top: -70px;
   -webkit-transform: rotate(-90deg);
   -moz-transform: rotate(-90deg);
   -o-transform: rotate(-90deg);
   writing-mode: tb-rl;
+  position: relative;
+  top: -60px;
+  left: 50px;
 }
 
 .checkin_list .checkin .capped {

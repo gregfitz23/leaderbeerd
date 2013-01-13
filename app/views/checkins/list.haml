@@ -1,22 +1,31 @@
+.navbar.navbar-fixed-top.navbar-inverse
+  .navbar-inner
+    .container
+      %a.brand{:href => "/"} 
+        %img.logo{:src => "/images/logo.png"}
+        Leaderbeerd
+
 .checkin_list
   #checkin_list
     .filters.checkin
-      %h2 Wall o' Beers
-      %ul
-        %li Date
-        %li gregfitz23
+      %ul.nav.nav-pills.nav-stacked
+        %li.nav-header Filters
+        - @filters.each_pair do |name, values|
+          - Array(values).each do |val|
+            %li
+              %a{:href => ""} #{name} - #{val}
         
     - @checkins.each do |checkin|
-      .checkin
-        .capped{:class => case checkin.rating when 0..2 then "bad"; when 3 then "ok"; end}
+      .checkin.well
+        .capped.tooltip_trigger{:class => case checkin.rating when 0..2 then "bad"; when 3 then "ok"; end, "data-title" => "#{checkin.rating}/5"}
         - if checkin.toast_count > 0
-          .toasted
-        %h3= checkin.beer_name
+          .toasted.tooltip_trigger{"data-title" => "Toasted"}
+        %h5= checkin.beer_name
         .clear
         
-        %img.label{:src => checkin.beer_label_url}
-        .username= checkin.username
-        .date= Time.at(checkin.timestamp).strftime('%D')
+        %img.beer_label.img-rounded{:src => checkin.beer_label_url}
+        .username.btn.btn-mini= checkin.username
+        .date.btn.btn-mini= Time.at(checkin.timestamp).strftime('%D')
         - unless checkin.checkin_comment.nil?
           .comment
             = checkin.checkin_comment
@@ -35,4 +44,6 @@
         cornerStampSelector: '.filters'
       });
     });
+    
+    $(".tooltip_trigger").tooltip();
   });

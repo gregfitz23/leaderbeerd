@@ -3,6 +3,7 @@ require "bundler/setup"
 require 'benchmark'
 require 'logger'
 require 'irb'
+require 'active_support/core_ext'
 
 require "./lib/config"
 require File.join(Leaderbeerd::Config.root_dir, "app/controllers/admin_controller")

@@ -81,13 +81,18 @@ module Leaderbeerd
         items        
       end
       
-      def all
+      def all(options = {})
         items = []
-        self.table
+
+        options[:order] ||= [:timestamp, :asc]
+        proxy = self.table
           .items
           .select(:all)
-          .order(:timestamp, :asc)
-          .each {|i| items << item_to_model(i)}
+          .order(*options[:order])
+          
+        proxy = proxy.where(options[:where]) if options[:where]
+          
+        proxy.each {|i| items << item_to_model(i)}
           
         items        
         
@@ -113,8 +118,8 @@ module Leaderbeerd
       def refresh!(checkin)
         @untappd = NRB::Untappd::API.new(access_token: Config.untappd_access_token)
         checkin_data = @untappd.checkin_info(checkin_id: checkin.checkin_id)
-        refreshed = CheckinParser::parse_into_checkin(checkin_data)
-        refreshed.save
+        checkin = CheckinParser::parse_into_checkin(checkin_data)
+        checkin.save
       end
       
       private      

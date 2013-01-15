@@ -6,13 +6,12 @@
   
   var overview_chart;
   var control;
-  var overview_data = [];
   var selection;
   function handleSelection() {
-    console.log(overview_chart);
     selection = overview_chart.getChart().getSelection()[0];
-    var username = overview_data.getColumnLabel(selection.column);
-    var date = overview_data.getValue(selection.row, 0);
+    var data = overview_chart.getDataTable();
+    var username = data.getColumnLabel(selection.column);
+    var date = data.getValue(selection.row, 0);
     var dateStr = date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate();
     
     window.location = "/checkins?start_date=" + dateStr  + "&username[]=" + username;
@@ -51,7 +50,7 @@
     // Create the data table.
 
     var tmp_overview_data = #{@count_by_day_data.to_json};
-    overview_data = new google.visualization.DataTable();
+    var overview_data = new google.visualization.DataTable();
 
     var headers = tmp_overview_data.shift();
     var date_label = headers.shift();
@@ -153,7 +152,7 @@
   .navbar-inner
     .container
       %a.brand{:href => "/"} 
-        %img.logo{:src => "/images/logo.png"}
+        %img.logo{:src => "//assets.leaderbeerd.com/images/logo.png"}
         Leaderbeerd
       %ul.nav
         %li 

@@ -9,11 +9,13 @@ module Leaderbeerd
                     :aws_key, 
                     :aws_secret, 
                     :untappd_usernames,
-                    :logger
+                    :logger,
+                    :asset_host
                     
       def root_dir
         File.join(File.dirname(__FILE__), "..")
       end
+      
                     
     end  
   end

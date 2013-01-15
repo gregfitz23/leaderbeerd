@@ -1,5 +1,10 @@
+html {
+  height: 100%;
+}
+
 body {
   padding-top: 71px;
+  height: 100%;
 }
 
 .clear {
@@ -132,10 +137,28 @@ body {
   margin-right: 2px;
 }
 
+.checkin_list .checkin .venued {
+  background: url(/images/checkin.png) no-repeat top left;
+  height: 16px;
+  width: 16px;
+  float: right;
+  border-radius: 5px;
+  margin-right: 2px;
+}
+
 .checkin_list .checkin .capped.ok {
   background-position: 0 -16px;
 }
 
 .checkin_list .checkin .capped.bad {
   background-position: 0 -32px;
+}
+
+
+.checkin_view {
+  padding: 20px;
+}
+
+.checkin_view #map_canvas {
+  border-radius: 5px;
 }

@@ -55,8 +55,10 @@ module Leaderbeerd
   
     desc "server", "start the http server"
     standard_options
+    method_option :asset_host, :type => :string, :default => "//assets.leaderbeerd.com"
     def server
       process_options
+      ::Leaderbeerd::Config.asset_host = options[:asset_host]
 
       check_pid_and_fork do
         ::Leaderbeerd::Config.logger.info "Starting Sinatra server"
@@ -91,7 +93,7 @@ module Leaderbeerd
       ::Leaderbeerd::Config.untappd_usernames = options[:untappd_usernames]
       ::Leaderbeerd::Config.aws_key = options[:aws_key]
       ::Leaderbeerd::Config.aws_secret = options[:aws_secret]
-      
+
       begin
         Dir.mkdir(File.dirname(options[:log_file]))
       rescue SystemCallError

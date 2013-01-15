@@ -20,6 +20,8 @@
         .capped.tooltip_trigger{:class => case checkin.rating when 0..2 then "bad"; when 3 then "ok"; end, "data-title" => "#{checkin.rating}/5"}
         - if checkin.toast_count > 0
           .toasted.tooltip_trigger{"data-title" => "Toasted"}
+        - unless checkin.venue_id.nil?
+          .venued.tooltip_trigger{"data-title" => checkin.venue_name }
         %h5= checkin.beer_name
         .clear
         

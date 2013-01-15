@@ -1,5 +1,35 @@
-%h1 #{@checkin.username} 
+%script{:src => "https://maps.googleapis.com/maps/api/js?key=AIzaSyAcoPlJQ-H1nLSNDPAJpiowoZMtiNRidB0&sensor=false"}
 
-.beer_info
-  %h3= @checkin.beer_name
-  %img{:src => @checkin.beer_label_url }
+.navbar.navbar-fixed-top.navbar-inverse
+  .navbar-inner
+    .container
+      %a.brand{:href => "/"} 
+        %img.logo{:src => "//assets.leaderbeerd.com/images/logo.png"}
+        Leaderbeerd
+
+.checkin_view
+  .row
+    .span12 
+      .hero-unit
+        %h1
+          %img.img-rounded{:src => @checkin.beer_label_url}
+          = @checkin.beer_name
+        %p= @checkin.checkin_comment
+        %h3= @checkin.username
+      
+  .row
+    .span12
+      #map_canvas{:style => "width: 100%; height: 400px"}
+        hi
+
+
+:javascript
+$(document).ready(function() {
+   var mapOptions = {
+     center: new google.maps.LatLng(-34.397, 150.644),
+     zoom: 8,
+     mapTypeId: google.maps.MapTypeId.ROADMAP
+   };
+   var map = new google.maps.Map(document.getElementById("map_canvas"),
+       mapOptions);
+});

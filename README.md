@@ -7,10 +7,21 @@ This is currently for my amusement only.
 
 Building
 ----
-1. Install RVM - https://rvm.io/rvm/install/
-2. Install Ruby 1.9.3 - rvm install 1.9.3
-3. Install bundler - gem install bundler
-4. Install gems - bundle install
+Install RVM - https://rvm.io/rvm/install/
+
+    \curl -L https://get.rvm.io | bash -s stable --ruby
+
+Install Ruby 1.9.3
+
+    rvm install 1.9.3
+
+Install bundler
+
+    gem install bundler
+
+Install gems
+
+    bundle install
 
 Running
 -----

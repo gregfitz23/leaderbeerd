@@ -3,7 +3,7 @@ require 'benchmark'
 require File.join(Leaderbeerd::Config.root_dir, "lib/checkin_parser")
 
 module Leaderbeerd
-  class Checkin
+  class Checkin < SimpleDbBase
     
     ATTRIBUTES = [
       :username, 
@@ -30,18 +30,6 @@ module Leaderbeerd
     
     class << self
       
-      def table
-        return @table if @table
-        
-        @db ||= AWS::SimpleDB.new(
-          :access_key_id => Config.aws_key,
-          :secret_access_key => Config.aws_secret
-        )
-
-        @table = @db.domains["leaderbeerd_checkins"]          
-        @table
-      end
-
       def create(attributes)
         [:checkin_id, :username, :timestamp].each {|a| raise "#{a} is required" if attributes[a].to_s.empty? }
         

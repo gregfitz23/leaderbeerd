@@ -13,7 +13,9 @@
         - @filters.each_pair do |name, values|
           - Array(values).each do |val|
             %li
-              %a{:href => ""} #{name} - #{val}
+              %a.filter{:href => "#", "data-filtername" => name.gsub(" ","_").underscore, "data-filterval" => val} 
+                .close.pull-left X
+                #{name} - #{val}
         
     - @checkins.each do |checkin|
       .checkin.well
@@ -48,4 +50,18 @@
     });
     
     $(".tooltip_trigger").tooltip();
+    
+    $(".filter").click(function(e) {
+      var filters = {};
+      var clickedFilter = this;
+      $(".filter").each(function(i, otherFilter) {
+        if (otherFilter != clickedFilter) {
+          var _otherFilter = $(otherFilter);
+          filters[_otherFilter.data("filtername")] = _otherFilter.data("filterval");
+        }
+      });
+      
+      window.location = "/checkins?" + $.param(filters);
+      return false;
+    });
   });

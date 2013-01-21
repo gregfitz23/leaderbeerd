@@ -25,8 +25,13 @@ module Leaderbeerd
       abv_data = {}
       @usernames.each {|un| abv_data[un] = {:total => 0, :count => 0} }
       
+      @counts_by_brewery = {}
+      @counts_by_style = {}
+      
       prev_key = nil
       checkins = Checkin.all
+      @most_recent_checkin = checkins.last
+      
       checkins.each do |checkin|
         username = checkin.username
         key = Time.at(checkin.timestamp).strftime("%D")
@@ -45,11 +50,16 @@ module Leaderbeerd
         
         abv_data[username][:total] += checkin.beer_abv
         abv_data[username][:count] += 1
+        
+        @counts_by_brewery[checkin.brewery_name] ||= 0
+        @counts_by_brewery[checkin.brewery_name] += 1
+        
+        @counts_by_style[checkin.beer_style] ||= 0
+        @counts_by_style[checkin.beer_style] += 1
       end
-
-      @most_recent_checkin = checkins.last
-
       @sums_by_user.each_pair {|un, sum| @data[prev_key]["#{un}_total"] = sum }
+
+
       
       @abv_data = {"Label" => "Value"}
       abv_data.each_pair { |un, count_and_sum| @abv_data[un] = (count_and_sum[:total]/count_and_sum[:count]).round(1)}
@@ -85,7 +95,7 @@ module Leaderbeerd
       options = {
         where: {}
       }
-      
+
       @filters = {}
 
       if (start_date = params[:start_date])
@@ -99,7 +109,17 @@ module Leaderbeerd
       if (username = params[:username])
         options[:where][:username] = username
         
-        @filters["User"] = username 
+        @filters["Username"] = username 
+      end
+      
+      if (state = params[:state])
+        options[:where][:brewery_state] = state
+        @filters["State"] = state
+      end
+
+      if (country = params[:country])
+        options[:where][:brewery_country] = country
+        @filters["Country"] = country
       end
       
       @checkins = Checkin.all(options)

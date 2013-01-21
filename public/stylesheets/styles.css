@@ -154,6 +154,12 @@ body {
   background-position: 0 -32px;
 }
 
+.checkin_list .filter .close {
+  font-size: 12px;
+  line-height: 14px;
+  padding-right: 5px;
+}
+
 
 .checkin_view {
   padding: 20px;

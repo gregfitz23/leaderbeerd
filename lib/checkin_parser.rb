@@ -22,6 +22,7 @@ module Leaderbeerd
         beer_name: beer.beer_name,
         beer_label_url: beer.beer_label,
         beer_abv: beer.beer_abv,
+        beer_style: beer.beer_style,
         brewery_id: !brewery.empty? ? brewery.brewery_id : nil,
         brewery_name: !brewery.empty? ? brewery.brewery_name : nil,
         brewery_country: !brewery.empty? ? brewery.country_name : nil,

@@ -13,6 +13,7 @@ module Leaderbeerd
       :beer_name,
       :beer_label_url,
       :beer_abv,
+      :beer_style,
       :brewery_id,
       :brewery_name,
       :brewery_state,
@@ -91,7 +92,7 @@ module Leaderbeerd
           .order(*options[:order])
           
         proxy = proxy.where(options[:where]) if options[:where]
-          
+
         proxy.each {|i| items << item_to_model(i)}
           
         items        

@@ -66,6 +66,19 @@ module Leaderbeerd
       end
     end
     
+    desc "admin_server", "start the admin http server"
+    standard_options
+    method_option :asset_host, :type => :string, :default => "//assets.leaderbeerd.com"
+    def admin_server
+      process_options
+      ::Leaderbeerd::Config.asset_host = options[:asset_host]
+
+      check_pid_and_fork do
+        ::Leaderbeerd::Config.logger.info "Starting Sinatra server"
+        ::Leaderbeerd::AdminController.run!
+      end
+    end
+    
     desc "console", "Run a console in the given context"
     standard_options
     def console

@@ -1,21 +1,70 @@
 require 'sinatra'
 require File.join(Leaderbeerd::Config.root_dir, 'app/models/checkin')
+require File.join(Leaderbeerd::Config.root_dir, 'app/models/user')
+require File.join(Leaderbeerd::Config.root_dir, 'lib/user_parser')
 
 module Leaderbeerd
   class CheckinsController < Sinatra::Base
+    enable :sessions
+    set :session_secret, "encrypt them leaderbeerd sessions!"
     
     set :run, true
     set :port, 80
     set :root, File.join(Leaderbeerd::Config.root_dir, "app/controllers")
     set :views, File.join(Leaderbeerd::Config.root_dir, "app/views")
     set :public_folder, File.join(Leaderbeerd::Config.root_dir, "public")
+    
+    before '/checkins/*' do 
+      redirect "/" unless session[:username]
+    end
+      
+
     get "/health_test" do
       "hi"
     end
     
     get "/" do
+      if username = session[:username]
+        redirect "/checkins/overview" and return
+      end
+      
+      haml :"checkins/index"      
+    end
+    
+    ###
+    # USERS
+    ###
+    get '/users/oauth' do
+      redirect "https://untappd.com/oauth/authenticate/?client_id=#{::Leaderbeerd::Config.untappd_client_id}&client_secret=#{::Leaderbeerd::Config.untappd_secret}&response_type=code&redirect_url=http://#{request.host}:#{request.port}/users/oauth_callback" 
+    end
+
+    get '/users/oauth_callback' do
+      if code = params[:code]
+        ::Leaderbeerd::Config.logger.debug "Redirecting to https://untappd.com/oauth/authorize/?client_id=#{::Leaderbeerd::Config.untappd_client_id}&client_secret=#{::Leaderbeerd::Config.untappd_secret}&response_type=code&code=#{code}&redirect_url=http://#{request.host}:#{request.port}/users/oauth_callback"
+        resp = JSON.parse(open("https://untappd.com/oauth/authorize/?client_id=#{::Leaderbeerd::Config.untappd_client_id}&client_secret=#{::Leaderbeerd::Config.untappd_secret}&response_type=code&code=#{params[:code]}&redirect_url=http://#{request.host}:#{request.port}/users/oauth_callback").read)
+        access_token = resp["response"]["access_token"]
+
+        untappd = NRB::Untappd::API.new(access_token: access_token)
+        resp = untappd.user_info
+
+        user = Leaderbeerd::UserParser.parse_into_user(resp.body.response.user)
+        user.access_token = access_token
+        
+        friend_resp = untappd.user_friends
+        friends = friend_resp.body.response.items.map {|friendship| friendship.user.user_name }.join("^|^")
+        user.friends = friends
+        user.save
+        
+        session[:username] = user.username
+        redirect "/"
+      end
+    end
+    
+    
+    get "/checkins/overview" do
       #setup
-      @usernames = Config.untappd_usernames
+      @current_user = Leaderbeerd::User.find(session[:username])
+      @usernames = @current_user.friends.unshift(@current_user.username)
       
       @data = {}
       
@@ -29,7 +78,7 @@ module Leaderbeerd
       @counts_by_style = {}
       
       prev_key = nil
-      checkins = Checkin.all
+      checkins = Checkin.all(:where => { :username => @usernames })
       @most_recent_checkin = checkins.last
       
       checkins.each do |checkin|
@@ -58,11 +107,11 @@ module Leaderbeerd
         @counts_by_style[checkin.beer_style] += 1
       end
       @sums_by_user.each_pair {|un, sum| @data[prev_key]["#{un}_total"] = sum }
-
-
       
       @abv_data = {"Label" => "Value"}
-      abv_data.each_pair { |un, count_and_sum| @abv_data[un] = (count_and_sum[:total]/count_and_sum[:count]).round(1)}
+      abv_data
+        .reject { |un, count_and_sum| count_and_sum[:count] == 0 }
+        .each_pair { |un, count_and_sum| @abv_data[un] = (count_and_sum[:total]/count_and_sum[:count]).round(1)}
       
       @count_by_day_data = []
       @count_by_day_data << (['Date'] + @usernames*2)

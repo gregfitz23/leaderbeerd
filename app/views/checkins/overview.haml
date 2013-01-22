@@ -100,18 +100,16 @@
       type: 'line'
     };
 
+    var seriesOptions = {};
+    var viewColumns = [];
+    for(var i=0; i<headers.length; i++) {
+      seriesOptions[i] = (i<(headers/2)) ? count_series : sum_series;
+      viewColumns.push(i);
+    }
+      
     var overview_options = {
       title: 'Beers',
-      series: {
-        0: count_series,
-        1: count_series,
-        2: count_series,
-        3: count_series,
-        4: sum_series,
-        5: sum_series,
-        6: sum_series,
-        7: sum_series
-      },
+      series: seriesOptions,
       vAxes: [
         { title: "Daily Count"},
         { title: "Running Total"}
@@ -124,7 +122,7 @@
       containerId: 'overview_chart',
       options: overview_options,
       view: {
-        columns: [0,1,2,3,4,5,6,7,8]
+        columns: viewColumns
       }
     });
 

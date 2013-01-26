@@ -50,11 +50,22 @@ module Leaderbeerd
         
         friend_resp = untappd.user_friends
         friends = friend_resp.body.response.items.map {|friendship| friendship.user.user_name }
+
         user.friends = friends
         user.save
-        
-        processor = Leaderbeerd::Processor.new
-        processor.process(session[:username])      
+
+        # process each friends checkins to ensure there's data populated
+        friends.each do |friend|
+          resp = untappd.user_info(
+            username: friend
+          )
+          checkins = resp.body.response.user.checkins.items
+          checkins.each do |checkin_data| 
+            checkin = CheckinParser::parse_into_checkin(checkin_data)
+            puts checkin
+            checkin.save
+          end
+        end
         
         session[:username] = user.username
         redirect "/"
@@ -89,9 +100,6 @@ module Leaderbeerd
         @usernames = @current_user.visible_usernames.compact.empty? ? @all_usernames : @current_user.visible_usernames.compact
       end
       
-      puts @usernames
-      
-
       @data = {}
       
       @sums_by_user = {}

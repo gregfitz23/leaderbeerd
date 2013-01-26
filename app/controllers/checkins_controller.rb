@@ -6,10 +6,11 @@ require File.join(Leaderbeerd::Config.root_dir, 'lib/user_parser')
 module Leaderbeerd
   class CheckinsController < Sinatra::Base
     enable :sessions
-    set :session_secret, Leaderbeerd::Config.session_secret
+    set :session_secret, -> { Leaderbeerd::Config.session_secret }
     
     set :run, true
-    set :port, Leaderbeerd::Config.port
+    set :port, -> { Leaderbeerd::Config.port }
+    
     set :root, File.join(Leaderbeerd::Config.root_dir, "app/controllers")
     set :views, File.join(Leaderbeerd::Config.root_dir, "app/views")
     set :public_folder, File.join(Leaderbeerd::Config.root_dir, "public")

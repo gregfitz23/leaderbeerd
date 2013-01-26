@@ -7,7 +7,7 @@ require 'active_support/core_ext'
 
 require "./lib/config"
 require File.join(Leaderbeerd::Config.root_dir, "app/controllers/admin_controller")
-require File.join(Leaderbeerd::Config.root_dir, "app/controllers/checkins_controller")
+require File.join(::Leaderbeerd::Config.root_dir, "app/controllers/checkins_controller")
 require File.join(Leaderbeerd::Config.root_dir, "lib/processor")
 
 module Leaderbeerd
@@ -55,13 +55,15 @@ module Leaderbeerd
     desc "server", "start the http server"
     standard_options
     method_option :asset_host, :type => :string, :default => "//assets.leaderbeerd.com"
-    method_option :port, :type => :integer, :default => 80
+    method_option :port, :type => :numeric, :default => 80
     method_option :session_secret, :type => :string, :default => "encrypt them leaderbeerd sessions!"
     def server
       process_options
       ::Leaderbeerd::Config.asset_host = options[:asset_host]
       ::Leaderbeerd::Config.port = options[:port]
       ::Leaderbeerd::Config.session_secret = options[:session_secret]
+      
+      # configuration need to happen prior to loading
       
       check_pid_and_fork do
         ::Leaderbeerd::Config.logger.info "Starting Sinatra server"

@@ -76,10 +76,12 @@ class SimpleDbBase
       ret_attributes[id_field] = item.name
       
       data_attributes = item.respond_to?(:data) ? item.data.attributes : item.attributes
-      (attributes - [id_field.to_sym]).each do |a| 
-        values = data_attributes[a.to_s]
+      (attributes - [id_field.to_sym]).each do |a|
+        attribute_name = a.to_s
+        values = data_attributes[attribute_name]
         if values
-          ret_attributes.merge!({a => values.select {|v| !v.nil?}.first })
+          val = attribute_name.pluralize == attribute_name ? values : values.select {|v| !v.nil?}.first #if attribute looks like an array, return an array
+          ret_attributes.merge!({a => val })
         end
       end
       

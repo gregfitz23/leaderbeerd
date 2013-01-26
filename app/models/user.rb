@@ -11,12 +11,9 @@ module Leaderbeerd
       :last_name,
       :user_avatar,
       :access_token,
-      :friends
+      :friends,
+      :visible_usernames
     ]
-    
-    def friends
-      @friends.split("^|^")
-    end
     
   end
 end

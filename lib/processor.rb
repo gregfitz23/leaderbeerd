@@ -5,8 +5,14 @@ require File.join(Leaderbeerd::Config.root_dir, "lib/checkin_parser")
 module Leaderbeerd
   class Processor
   
-    def process
-      Leaderbeerd::User.all.each do |user|
+    def process(*usernames)
+      options = {}
+      
+      options[:where] = { :username => usernames } unless usernames.empty?
+      
+      users = Leaderbeerd::User.all(options)
+      
+      users.each do |user|
         Config.logger.debug "Fetching checkins for #{user.username}"
         untappd = NRB::Untappd::API.new(access_token: user.access_token)
         
@@ -17,8 +23,6 @@ module Leaderbeerd
             limit: 5
           )
 
-          Config.logger.debug resp.body.inspect
-          
           resp_meta = resp.body.meta
           if resp_meta.code == 200
             checkins = resp.body.response.checkins.items

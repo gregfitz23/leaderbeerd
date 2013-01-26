@@ -52,14 +52,17 @@ module Leaderbeerd
       end
     end
 
-  
     desc "server", "start the http server"
     standard_options
     method_option :asset_host, :type => :string, :default => "//assets.leaderbeerd.com"
+    method_option :port, :type => :integer, :default => 80
+    method_option :session_secret, :type => :string, :default => "encrypt them leaderbeerd sessions!"
     def server
       process_options
       ::Leaderbeerd::Config.asset_host = options[:asset_host]
-
+      ::Leaderbeerd::Config.port = options[:port]
+      ::Leaderbeerd::Config.session_secret = options[:session_secret]
+      
       check_pid_and_fork do
         ::Leaderbeerd::Config.logger.info "Starting Sinatra server"
         ::Leaderbeerd::CheckinsController.run!

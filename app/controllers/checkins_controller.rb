@@ -6,10 +6,10 @@ require File.join(Leaderbeerd::Config.root_dir, 'lib/user_parser')
 module Leaderbeerd
   class CheckinsController < Sinatra::Base
     enable :sessions
-    set :session_secret, "encrypt them leaderbeerd sessions!"
+    set :session_secret, Leaderbeerd::Config.session_secret
     
     set :run, true
-    set :port, 80
+    set :port, Leaderbeerd::Config.port
     set :root, File.join(Leaderbeerd::Config.root_dir, "app/controllers")
     set :views, File.join(Leaderbeerd::Config.root_dir, "app/views")
     set :public_folder, File.join(Leaderbeerd::Config.root_dir, "public")
@@ -24,9 +24,7 @@ module Leaderbeerd
     end
     
     get "/" do
-      if username = session[:username]
-        redirect "/checkins/overview" and return
-      end
+      redirect "/checkins/overview" and return if session[:username]
       
       haml :"checkins/index"      
     end
@@ -40,7 +38,6 @@ module Leaderbeerd
 
     get '/users/oauth_callback' do
       if code = params[:code]
-        ::Leaderbeerd::Config.logger.debug "Redirecting to https://untappd.com/oauth/authorize/?client_id=#{::Leaderbeerd::Config.untappd_client_id}&client_secret=#{::Leaderbeerd::Config.untappd_secret}&response_type=code&code=#{code}&redirect_url=http://#{request.host}:#{request.port}/users/oauth_callback"
         resp = JSON.parse(open("https://untappd.com/oauth/authorize/?client_id=#{::Leaderbeerd::Config.untappd_client_id}&client_secret=#{::Leaderbeerd::Config.untappd_secret}&response_type=code&code=#{params[:code]}&redirect_url=http://#{request.host}:#{request.port}/users/oauth_callback").read)
         access_token = resp["response"]["access_token"]
 
@@ -51,21 +48,47 @@ module Leaderbeerd
         user.access_token = access_token
         
         friend_resp = untappd.user_friends
-        friends = friend_resp.body.response.items.map {|friendship| friendship.user.user_name }.join("^|^")
+        friends = friend_resp.body.response.items.map {|friendship| friendship.user.user_name }
         user.friends = friends
         user.save
+        
+        processor = Leaderbeerd::Processor.new
+        processor.process(session[:username])      
         
         session[:username] = user.username
         redirect "/"
       end
     end
     
+    get "/users/refresh" do
+      @user = User.find(session[:username])
+      
+      untappd = NRB::Untappd::API.new(access_token: @user.access_token)
+      friend_resp = untappd.user_friends
+      friends = friend_resp.body.response.items.map {|friendship| friendship.user.user_name }
+      @user.friends = friends
+      @user.save      
+    end
     
+    ##
+    # Checkins#overview
+    #
     get "/checkins/overview" do
       #setup
       @current_user = Leaderbeerd::User.find(session[:username])
-      @usernames = @current_user.friends.unshift(@current_user.username)
+      @all_usernames = @current_user.friends.dup.sort.unshift(@current_user.username)
       
+      @usernames = []
+      if (params[:selected_usernames])
+        @usernames = params[:selected_usernames]
+        session[:selected_usernames] = @usernames
+        @current_user.visible_usernames = @usernames
+        @current_user.save
+      else
+        @usernames = @current_user.visible_usernames || @all_usernames
+      end
+      
+
       @data = {}
       
       @sums_by_user = {}
@@ -110,8 +133,7 @@ module Leaderbeerd
       
       @abv_data = {"Label" => "Value"}
       abv_data
-        .reject { |un, count_and_sum| count_and_sum[:count] == 0 }
-        .each_pair { |un, count_and_sum| @abv_data[un] = (count_and_sum[:total]/count_and_sum[:count]).round(1)}
+        .each_pair { |un, count_and_sum| @abv_data[un] = count_and_sum[:count] == 0 ? 0 : (count_and_sum[:total]/count_and_sum[:count]).round(1)}
       
       @count_by_day_data = []
       @count_by_day_data << (['Date'] + @usernames*2)
@@ -140,6 +162,9 @@ module Leaderbeerd
       haml :"checkins/overview"
     end
     
+    ##
+    # Checkins#list
+    #
     get "/checkins" do
       options = {
         where: {}
@@ -175,6 +200,9 @@ module Leaderbeerd
       haml :"checkins/list"
     end
     
+    ##
+    # Checkin#view
+    #
     get "/checkins/:checkin_id"  do
       @checkin = Checkin.find(params[:checkin_id])
       haml :"checkins/view"

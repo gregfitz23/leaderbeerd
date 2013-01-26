@@ -18,6 +18,11 @@ body {
 .logo {
   width: 50px;
 }
+
+#user_chooser input[type='checkbox'] {
+  display: none;
+}
+
 .overview .alert {
   text-align: center;
 }
@@ -27,6 +32,9 @@ body {
 
 .overview .row {
   text-align: center;
+}
+
+.overview #dashboard .row {
   margin-bottom: 50px;
 }
 

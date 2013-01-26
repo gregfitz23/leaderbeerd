@@ -86,8 +86,10 @@ module Leaderbeerd
         @current_user.visible_usernames = @usernames
         @current_user.save
       else
-        @usernames = @current_user.visible_usernames || @all_usernames
+        @usernames = @current_user.visible_usernames.compact.empty? ? @all_usernames : @current_user.visible_usernames.compact
       end
+      
+      puts @usernames
       
 
       @data = {}

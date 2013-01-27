@@ -15,9 +15,35 @@ module Leaderbeerd
     set :views, File.join(Leaderbeerd::Config.root_dir, "app/views")
     set :public_folder, File.join(Leaderbeerd::Config.root_dir, "public")
     
+    ## 
+    # setup users and filters
+    #
     before '/checkins/*' do 
       redirect "/" unless session[:username]
+      
+      @current_user = Leaderbeerd::User.find(session[:username])
+      @selected_usernames = []
+      if (params[:selected_usernames])
+        @selected_usernames = params[:selected_usernames]
+        session[:selected_usernames] = @selected_usernames
+        @current_user.visible_usernames = @selected_usernames
+        @current_user.save
+      else
+        @selected_usernames = @current_user.visible_usernames.compact.empty? ? @all_usernames : @current_user.visible_usernames.compact
+      end
+
+      if (session_start_date = params[:session_start_date]) && (session_end_date = params[:session_end_date])
+        @session_start_date = Date.parse(session_start_date)
+        @session_end_date = Date.parse(session_end_date)
+        session[:session_start_date] = session_start_date
+        session[:session_end_date] = session_end_date
+      else
+        @session_start_date = Date.parse(session[:session_start_date]) || (Date.today - 30.days)
+        @session_end_date = Date.parse(session[:session_end_date]) || Date.today
+      end
+      
     end
+    
       
 
     get "/health_test" do
@@ -87,32 +113,22 @@ module Leaderbeerd
     #
     get "/checkins/overview" do
       #setup
-      @current_user = Leaderbeerd::User.find(session[:username])
       @all_usernames = @current_user.friends.dup.sort.unshift(@current_user.username)
       
-      @usernames = []
-      if (params[:selected_usernames])
-        @usernames = params[:selected_usernames]
-        session[:selected_usernames] = @usernames
-        @current_user.visible_usernames = @usernames
-        @current_user.save
-      else
-        @usernames = @current_user.visible_usernames.compact.empty? ? @all_usernames : @current_user.visible_usernames.compact
-      end
-      
+
       @data = {}
       
       @sums_by_user = {}
-      @usernames.each {|un| @sums_by_user[un] = 0 }
+      @selected_usernames.each {|un| @sums_by_user[un] = 0 }
       
       abv_data = {}
-      @usernames.each {|un| abv_data[un] = {:total => 0, :count => 0} }
+      @selected_usernames.each {|un| abv_data[un] = {:total => 0, :count => 0} }
       
       @counts_by_brewery = {}
       @counts_by_style = {}
       
       prev_key = nil
-      checkins = Checkin.all(:where => { :username => @usernames })
+      checkins = Checkin.all(:where => { :username => @selected_usernames, :timestamp => (@session_start_date.beginning_of_day.to_i..@session_end_date.end_of_day.to_i) })
       @most_recent_checkin = checkins.last
       
       checkins.each do |checkin|
@@ -140,17 +156,17 @@ module Leaderbeerd
         @counts_by_style[checkin.beer_style] ||= 0
         @counts_by_style[checkin.beer_style] += 1
       end
-      @sums_by_user.each_pair {|un, sum| @data[prev_key]["#{un}_total"] = sum }
+      @sums_by_user.each_pair {|un, sum| @data[prev_key]["#{un}_total"] = sum if @data[prev_key]}
       
       @abv_data = {"Label" => "Value"}
       abv_data
         .each_pair { |un, count_and_sum| @abv_data[un] = count_and_sum[:count] == 0 ? 0 : (count_and_sum[:total]/count_and_sum[:count]).round(1)}
       
       @count_by_day_data = []
-      @count_by_day_data << (['Date'] + @usernames*2)
+      @count_by_day_data << (['Date'] + @selected_usernames*2)
       
       @data.to_a.each do |flattened|
-        ar = @usernames.map {|un| flattened.last[un] || 0 } + @usernames.map {|un| flattened.last["#{un}_total"] || 0 }
+        ar = @selected_usernames.map {|un| flattened.last[un] || 0 } + @selected_usernames.map {|un| flattened.last["#{un}_total"] || 0 }
         ar = [flattened.first] + ar
         @count_by_day_data << ar
       end

@@ -196,23 +196,9 @@
     %a.close{:href => "", "data-dismiss" => "alert"}x
     
   %h2 Overview
-  #user_chooser.row
-    .well.span10.offset2
-      %form
-        %button.btn.btn-success.pull-right Refresh
-        %ul.nav.nav-pills
-          - @all_usernames.each_with_index do |username, i|
-            - active = @usernames.include?(username)
-            %li{:class => active ? "active" : "" }
-              %a{:href => "#"}= username
-              %input{:type => "checkbox", :name => "selected_usernames[]", :checked => active, :value => username}
-  :javascript
-    $('#user_chooser a').click(function(e) {
-      var parent = $(this).parent("li");
-      parent.toggleClass("active");
-      $(this).next("input[type='checkbox']").prop("checked", parent.hasClass("active"));
-    });
-
+  .row
+    = haml :"checkins/_session_filters"
+    
   #dashboard
     #overview_container.row
       #overview_chart.chart

@@ -19,9 +19,15 @@ body {
   width: 50px;
 }
 
-#user_chooser input[type='checkbox'] {
+#session_filters input[type='checkbox'] {
   display: none;
 }
+
+#session_filters .date {
+  margin-right: 100px;
+}
+
+
 
 .overview .alert {
   text-align: center;

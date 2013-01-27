@@ -5,7 +5,7 @@ module Leaderbeerd
   class CheckinsController < Sinatra::Base
     
     set :run, true
-    set :port, 80
+    set :port, 4567
     set :root, File.join(Leaderbeerd::Config.root_dir, "app/controllers")
     set :views, File.join(Leaderbeerd::Config.root_dir, "app/views")
     set :public_folder, File.join(Leaderbeerd::Config.root_dir, "public")

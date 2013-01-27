@@ -22,6 +22,8 @@ module Leaderbeerd
       redirect "/" unless session[:username]
       
       @current_user = Leaderbeerd::User.find(session[:username])
+      @all_usernames = @current_user.friends.dup.sort.unshift(@current_user.username)
+      
       @selected_usernames = []
       if (params[:selected_usernames])
         @selected_usernames = params[:selected_usernames]
@@ -115,9 +117,6 @@ module Leaderbeerd
     #
     get "/checkins/overview" do
       #setup
-      @all_usernames = @current_user.friends.dup.sort.unshift(@current_user.username)
-      
-
       @data = {}
       
       @sums_by_user = {}

@@ -29,7 +29,7 @@ module Leaderbeerd
       @counts_by_style = {}
       
       prev_key = nil
-      checkins = Checkin.all
+      checkins = Checkin.all(:where => {:username => @usernames })
       @most_recent_checkin = checkins.last
       
       checkins.each do |checkin|

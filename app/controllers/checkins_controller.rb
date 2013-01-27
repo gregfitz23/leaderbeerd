@@ -37,11 +37,13 @@ module Leaderbeerd
         @session_end_date = Date.parse(session_end_date)
         session[:session_start_date] = session_start_date
         session[:session_end_date] = session_end_date
+      elsif (session_start_date = session[:session_start_date]) && (session_end_date = session[:session_end_date])
+        @session_start_date = Date.parse(session_start_date)
+        @session_end_date = Date.parse(session_end_date)
       else
-        @session_start_date = Date.parse(session[:session_start_date]) || (Date.today - 30.days)
-        @session_end_date = Date.parse(session[:session_end_date]) || Date.today
-      end
-      
+        @session_start_date = Date.today - 30.days
+        @session_end_date = Date.today
+      end      
     end
     
       

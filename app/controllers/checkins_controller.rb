@@ -56,7 +56,7 @@ module Leaderbeerd
     end
     
     get "/" do
-      redirect "/checkins/overview" and return if session[:username]
+      redirect "/checkins/overview" and return if session[:username] && params[:test] != "true"
       
       haml :"checkins/index"      
     end
@@ -79,24 +79,28 @@ module Leaderbeerd
         user = Leaderbeerd::UserParser.parse_into_user(resp.body.response.user)
         user.access_token = access_token
         
+        old_friends = user.friends.dup
+        
         friend_resp = untappd.user_friends
         friends = friend_resp.body.response.items.map {|friendship| friendship.user.user_name }
 
-        user.friends = friends
-        user.save
-
-        # process each friends checkins to ensure there's data populated
-        friends.each do |friend|
-          resp = untappd.user_info(
-            username: friend
-          )
-          checkins = resp.body.response.user.checkins.items
-          checkins.each do |checkin_data| 
-            checkin = CheckinParser::parse_into_checkin(checkin_data)
-            checkin.save
+        new_friends = Set.new(friends) - Set.new(old_friends)
+        # process each new friends checkins to ensure there's data populated, assume old friends are up to date
+        unless new_friends.empty?
+          new_friends.each do |friend|
+            resp = untappd.user_info(
+              username: friend
+            )
+            checkins = resp.body.response.user.checkins.items
+            checkins.each do |checkin_data| 
+              checkin = CheckinParser::parse_into_checkin(checkin_data)
+              checkin.save
+            end
           end
         end
-        
+
+        user.friends = friends        
+        user.save        
         session[:username] = user.username
         redirect "/"
       end
@@ -116,6 +120,7 @@ module Leaderbeerd
     # Checkins#overview
     #
     get "/checkins/overview" do
+      @page_title = "#{@current_user.username}'s Dashboard"
       #setup
       @data = {}
       

@@ -27,8 +27,13 @@ body {
   margin-right: 100px;
 }
 
+.index .thumbnails img {
+  height: 200px;
+}
 
-
+.index .thumbnails .caption {
+  text-align: center;
+}
 .overview .alert {
   text-align: center;
 }

@@ -1,14 +1,55 @@
-.navbar.navbar-fixed-top.navbar-inverse
-  .navbar-inner
-    .container
-      %a.brand{:href => "/"} 
-        %img.logo{:src => "//assets.leaderbeerd.com/images/logo.png"}
-        Leaderbeerd
+.index
+  .navbar.navbar-fixed-top.navbar-inverse
+    .navbar-inner
+      .container
+        %a.brand{:href => "/"} 
+          %img.logo{:src => "#{Leaderbeerd::Config.asset_host}/images/logo.png"}
+          Leaderbeerd
 
-.row
-  .span10.offset2
-    .hero-unit
-      %h1 Leaderbeerd
-      %p Check in your beers on Untappd.  Find out how much drunker than your friends you are with Leaderbeerd.
-      %p
-        %a.btn.btn-primary.btn-large{:href => "/users/oauth"} Get Started
+  .row
+    .span9.offset3
+      .hero-unit
+        %h1 Leaderbeerd
+        %p Check in your beers on Untappd.  Find out how much drunker than your friends you are with Leaderbeerd.
+        %p
+          %a.btn.btn-primary.btn-large{:href => "/users/oauth"} Get Started
+
+  .row
+    .span12.offset1
+      %ul.thumbnails
+        %li.span4.offset1
+          %a.thumbnail{:href=>"#chart_modal", "data-toggle" => "modal"}
+            .caption
+              %h4 Chart Your Progress
+            %img{:src => "#{Leaderbeerd::Config.asset_host}/images/graph.png"}
+        %li.span4
+          %a.thumbnail{:href=>"#map_modal", "data-toggle" => "modal"}
+            .caption
+              %h4 Track Beers By Region
+            %img{:src => "#{Leaderbeerd::Config.asset_host}/images/map.png"}
+        %li.span4
+          %a.thumbnail{:href=>"#wall_modal", "data-toggle" => "modal"}
+            .caption
+              %h4 Wall of Beers
+            %img{:src => "#{Leaderbeerd::Config.asset_host}/images/wall.png"}
+  
+#chart_modal.modal.hide.fade
+  .modal-header
+    %button.close{:type=>"button", "data-dismiss"=>"modal"}x
+    %h4 Chart Your Progress
+  .modal-body
+    %img{:src => "#{Leaderbeerd::Config.asset_host}/images/graph.png"}
+
+#map_modal.modal.hide.fade
+  .modal-header
+    %button.close{:type=>"button", "data-dismiss"=>"modal"}x
+    %h4 Track Beers by Region
+  .modal-body
+    %img{:src => "#{Leaderbeerd::Config.asset_host}/images/map.png"}
+
+#wall_modal.modal.hide.fade
+  .modal-header
+    %button.close{:type=>"button", "data-dismiss"=>"modal"}x
+    %h4 Wall of Beers
+  .modal-body
+    %img{:src => "#{Leaderbeerd::Config.asset_host}/images/wall.png"}

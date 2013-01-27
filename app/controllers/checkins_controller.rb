@@ -92,7 +92,6 @@ module Leaderbeerd
           checkins = resp.body.response.user.checkins.items
           checkins.each do |checkin_data| 
             checkin = CheckinParser::parse_into_checkin(checkin_data)
-            puts checkin
             checkin.save
           end
         end

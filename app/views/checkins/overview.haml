@@ -1,4 +1,5 @@
-- @colors = ['#b94a48', '#c09853', '#3a87ad', '#468847', '#3C1150', '#F57113', '#F67985', '#ED1328', '#3FCCB9']
+- color_generator = ColorGenerator.new seed: 845, saturation: 0.44, lightness: 0.5
+- @colors = (0..@selected_usernames.size).map { "##{color_generator.create}" }
 %script{:type => "text/javascript", :src => "https://www.google.com/jsapi" }
 :javascript
   // Load the Visualization API and the piechart package.

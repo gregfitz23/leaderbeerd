@@ -1,4 +1,5 @@
 require 'sinatra'
+require 'color-generator'
 require File.join(Leaderbeerd::Config.root_dir, 'app/models/checkin')
 require File.join(Leaderbeerd::Config.root_dir, 'app/models/user')
 require File.join(Leaderbeerd::Config.root_dir, 'lib/user_parser')

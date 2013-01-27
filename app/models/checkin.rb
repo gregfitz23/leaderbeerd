@@ -1,11 +1,14 @@
 require 'aws-sdk'
 require 'benchmark'
+require File.join(Leaderbeerd::Config.root_dir, 'app/models/simple_db_base')
 require File.join(Leaderbeerd::Config.root_dir, "lib/checkin_parser")
 
 module Leaderbeerd
-  class Checkin
+  class Checkin < ::SimpleDbBase
     
-    ATTRIBUTES = [
+    self.table_name = "leaderbeerd_checkins"
+    
+    self.attributes = [
       :username, 
       :timestamp, 
       :checkin_id,
@@ -25,8 +28,6 @@ module Leaderbeerd
       :checkin_comment,
       :rating
     ]
-    
-    ATTRIBUTES.each {|a| attr_accessor a }
     
     class << self
       
@@ -70,23 +71,6 @@ module Leaderbeerd
         items        
       end
       
-      def all(options = {})
-        items = []
-
-        options[:order] ||= [:timestamp, :asc]
-        proxy = self.table
-          .items
-          .select(:all)
-          .order(*options[:order])
-          
-        proxy = proxy.where(options[:where]) if options[:where]
-
-        proxy.each {|i| items << item_to_model(i)}
-          
-        items        
-        
-      end
-      
       ##
       # Find all checkins by a user after the given timestamp.
       #
@@ -112,36 +96,8 @@ module Leaderbeerd
       end
       
       private      
-      def item_to_model(item)
-        attributes = {
-          checkin_id: item.name.to_i          
-        }
-        
-        data_attributes = item.respond_to?(:data) ? item.data.attributes : item.attributes
-        (ATTRIBUTES - [:checkin_id]).each do |a| 
-          values = data_attributes[a.to_s]
-          if values
-            attributes.merge!({a => values.select {|v| !v.nil?}.first })
-          end
-        end
-        
-        self.new(attributes)
-      end
     end
     
-    def initialize(attributes = {})
-      attributes.each_pair do |name, value|
-        self.__send__("#{name}=", value) if ATTRIBUTES.include?(name)
-      end
-    end
-    
-    def save
-      item = self.class.table.items[self.checkin_id]
-      attrs = ATTRIBUTES.inject({}) do |hash, attribute|
-        hash.merge({attribute => self.send(attribute) })
-      end
-      item.attributes.put(replace: attrs)      
-    end
     
     # Attributes
     def rating

@@ -18,6 +18,17 @@ body {
 .logo {
   width: 50px;
 }
+
+#session_filters input[type='checkbox'] {
+  display: none;
+}
+
+#session_filters .date {
+  margin-right: 100px;
+}
+
+
+
 .overview .alert {
   text-align: center;
 }
@@ -27,6 +38,9 @@ body {
 
 .overview .row {
   text-align: center;
+}
+
+.overview #dashboard .row {
   margin-bottom: 50px;
 }
 

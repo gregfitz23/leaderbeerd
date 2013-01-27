@@ -1,3 +1,4 @@
+- @colors = ['#b94a48', '#c09853', '#3a87ad', '#468847', '#3C1150', '#F57113', '#F67985', '#ED1328', '#3FCCB9']
 %script{:type => "text/javascript", :src => "https://www.google.com/jsapi" }
 :javascript
   // Load the Visualization API and the piechart package.
@@ -39,32 +40,6 @@
     var dashboard = new google.visualization.Dashboard(
          document.getElementById('dashboard'));
 
-    control = new google.visualization.ControlWrapper({
-      'controlType': 'ChartRangeFilter',
-      'containerId': 'overview_control',
-      'options': {
-        // Filter by the date axis.
-        'filterColumnIndex': 0,
-        'ui': {
-          'chartType': 'LineChart',
-          'chartOptions': {
-            'chartArea': {'width': '90%'},
-            'hAxis': {'baselineColor': 'none'}
-          },
-          // Display a single series that shows the closing value of the stock.
-          // Thus, this view has two columns: the date (axis) and the stock value (line series).
-          'chartView': {
-            'columns': [0, 9]
-          },
-          // 1 day in milliseconds = 24 * 60 * 60 * 1000 = 86,400,000
-          'minRangeSize': 86400000
-        }
-      },
-      // Initial range: 2012-02-09 to 2012-03-20.
-      'state': {'range': {'start': new Date(2012, 11, 8), 'end': new Date()}}
-    });
-
-
     // Create the data table.
 
     var tmp_overview_data = #{@count_by_day_data.to_json};
@@ -72,6 +47,7 @@
 
     var headers = tmp_overview_data.shift();
     var date_label = headers.shift();
+    var record_count = headers.length;
     overview_data.addColumn('date', date_label);
     $.each(headers, function(i, header) { overview_data.addColumn('number', header); } );
     overview_data.addColumn('number', 'Total Beers Consumed');
@@ -89,6 +65,31 @@
       overview_data.addRow(row);
     });
     
+    control = new google.visualization.ControlWrapper({
+      'controlType': 'ChartRangeFilter',
+      'containerId': 'overview_control',
+      'options': {
+        // Filter by the date axis.
+        'filterColumnIndex': 0,
+        'ui': {
+          'chartType': 'LineChart',
+          'chartOptions': {
+            'chartArea': {'width': '90%'},
+            'hAxis': {'baselineColor': 'none'}
+          },
+          // Display a single series that shows the closing value of the stock.
+          // Thus, this view has two columns: the date (axis) and the stock value (line series).
+          'chartView': {
+            'columns': [0, record_count+1]
+          },
+          // 1 day in milliseconds = 24 * 60 * 60 * 1000 = 86,400,000
+          'minRangeSize': 86400000
+        }
+      },
+      // Initial range: 2012-02-09 to 2012-03-20.
+      'state': {'range': {'start': new Date(2012, 11, 8), 'end': new Date()}}
+    });
+    
     //var overview_data = google.visualization.arrayToDataTable(tmp_overview_data);
 
     var count_series = {
@@ -97,26 +98,28 @@
     };
     var sum_series = { 
       targetAxisIndex: 1,
-      type: 'line'
+      type: 'line',
+      visibleInLegend: false
     };
 
+    var seriesOptions = {};
+    var viewColumns = [];
+    for(var i=0; i<=record_count; i++) {
+      seriesOptions[i] = (i<(record_count/2)) ? count_series : sum_series;
+      viewColumns.push(i);
+    }
+    console.log(viewColumns);
+
+    var colors = #{@colors.to_json};
     var overview_options = {
       title: 'Beers',
-      series: {
-        0: count_series,
-        1: count_series,
-        2: count_series,
-        3: count_series,
-        4: sum_series,
-        5: sum_series,
-        6: sum_series,
-        7: sum_series
-      },
+      series: seriesOptions,
       vAxes: [
         { title: "Daily Count"},
         { title: "Running Total"}
       ],
-      colors: ['#b94a48', '#c09853', '#3a87ad', '#468847']
+      colors: colors.slice(0, record_count/2),
+      legend: { position: 'in'}
     };
 
     overview_chart = new google.visualization.ChartWrapper({
@@ -124,7 +127,7 @@
       containerId: 'overview_chart',
       options: overview_options,
       view: {
-        columns: [0,1,2,3,4,5,6,7,8]
+        columns: viewColumns
       }
     });
 
@@ -191,9 +194,13 @@
     %a{:href => "/checkins/#{@most_recent_checkin.checkin_id}"}
       #{@most_recent_checkin.beer_name}
     %a.close{:href => "", "data-dismiss" => "alert"}x
+    
+  %h2 Overview
+  .row
+    = haml :"checkins/_session_filters"
+    
   #dashboard
     #overview_container.row
-      %h2 Overview
       #overview_chart.chart
       #overview_control
 

@@ -1,0 +1,27 @@
+#session_filters
+  .well.span10.offset2
+    %form
+      .row
+        .span10
+          %ul.users.nav.nav-pills
+            - @all_usernames.each_with_index do |username, i|
+              - active = @selected_usernames.include?(username)
+              %li{:class => active ? "active" : "" }
+                %a{:href => "#"}= username
+                %input{:type => "checkbox", :name => "selected_usernames[]", :checked => active, :value => username}
+        :javascript
+          $('#session_filters .users a').click(function(e) {
+            var parent = $(this).parent("li");
+            parent.toggleClass("active");
+            $(this).next("input[type='checkbox']").prop("checked", parent.hasClass("active"));
+          });
+      .row
+        .span10
+          .input-prepend.pull-left
+            %span.add-on Start Date
+            %input.date.input-small{:type => "date", :name => "session_start_date", :placeholder => "Start", :value => @session_start_date.strftime("%Y-%m-%d")}
+          
+          .input-prepend.pull-left
+            %span.add-on End Date
+            %input.date.input-small{:type => "date", :name => "session_end_date", :placeholder => "End", :value => @session_end_date.strftime("%Y-%m-%d")}
+          %button.btn.btn-success.pull-left Refresh

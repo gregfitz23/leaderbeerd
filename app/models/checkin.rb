@@ -3,7 +3,7 @@ require 'benchmark'
 require File.join(Leaderbeerd::Config.root_dir, "lib/checkin_parser")
 
 module Leaderbeerd
-  class Checkin < SimpleDbBase
+  class Checkin
     
     ATTRIBUTES = [
       :username, 

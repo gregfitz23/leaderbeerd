@@ -79,7 +79,7 @@ module Leaderbeerd
         user = Leaderbeerd::UserParser.parse_into_user(resp.body.response.user)
         user.access_token = access_token
         
-        old_friends = user.friends.dup
+        old_friends = (user.friends || []).dup
         
         friend_resp = untappd.user_friends
         friends = friend_resp.body.response.items.map {|friendship| friendship.user.user_name }
